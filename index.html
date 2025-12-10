@@ -3,190 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Result System</title>
+    <title>Student Result Management System</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             background: white;
-            border-radius: 15px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        
-        h1 {
             text-align: center;
-            color: #667eea;
-            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header h1 {
             font-size: 2.5em;
+            margin-bottom: 10px;
         }
-        
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .class-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
+
+        .admin-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
+            font-weight: bold;
             transition: all 0.3s;
         }
-        
-        .class-btn {
-            background: #667eea;
-            color: white;
-        }
-        
-        .class-btn:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        .class-btn.active {
-            background: #764ba2;
-            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
-        }
-        
-        .admin-btn {
-            background: #f093fb;
-            color: white;
-        }
-        
+
         .admin-btn:hover {
-            background: #e07bea;
+            background: white;
+            color: #667eea;
         }
-        
+
+        .content {
+            padding: 40px;
+        }
+
         .search-section {
-            display: flex;
-            gap: 15px;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
             margin-bottom: 30px;
-            flex-wrap: wrap;
         }
-        
-        input, select {
+
+        .search-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
             padding: 12px;
-            border: 2px solid #ddd;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 16px;
-            flex: 1;
-            min-width: 200px;
+            font-size: 14px;
+            transition: border 0.3s;
         }
-        
-        input:focus, select:focus {
+
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
             border-color: #667eea;
         }
-        
+
         .search-btn {
-            background: #48bb78;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s;
         }
-        
+
         .search-btn:hover {
-            background: #38a169;
+            transform: translateY(-2px);
         }
-        
-        .results {
-            margin-top: 30px;
+
+        .result-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
         }
-        
-        .student-card {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 25px;
-            border-radius: 12px;
+
+        .result-card h3 {
+            font-size: 1.8em;
             margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        
-        .student-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+
+        .result-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
             margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 3px solid #667eea;
         }
-        
-        .student-info h2 {
-            color: #2d3748;
+
+        .info-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .info-item strong {
+            display: block;
             margin-bottom: 5px;
         }
-        
-        .student-info p {
-            color: #4a5568;
-            font-size: 14px;
+
+        .marks-table {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            color: #333;
         }
-        
-        .edit-btn {
-            background: #ed8936;
-            color: white;
-            padding: 8px 16px;
-            font-size: 14px;
-        }
-        
-        .edit-btn:hover {
-            background: #dd6b20;
-        }
-        
-        table {
+
+        .marks-table table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
         }
-        
-        th, td {
+
+        .marks-table th,
+        .marks-table td {
             padding: 15px;
             text-align: left;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e0e0e0;
         }
-        
-        th {
+
+        .marks-table th {
             background: #667eea;
             color: white;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 14px;
         }
-        
-        tr:hover {
-            background: #f7fafc;
+
+        .marks-table tr:last-child td {
+            border-bottom: none;
         }
-        
+
         .total-row {
+            background: #f8f9fa;
             font-weight: bold;
-            background: #edf2f7;
         }
-        
+
         .modal {
             display: none;
             position: fixed;
@@ -199,241 +201,482 @@
             justify-content: center;
             align-items: center;
         }
-        
+
+        .modal.active {
+            display: flex;
+        }
+
         .modal-content {
             background: white;
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 500px;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 400px;
             width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
         }
-        
+
         .modal-content h2 {
             color: #667eea;
             margin-bottom: 20px;
         }
-        
-        .form-group {
-            margin-bottom: 15px;
+
+        .close-modal {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
         }
-        
-        .form-group label {
+
+        .admin-panel {
+            display: none;
+        }
+
+        .admin-panel.active {
             display: block;
-            margin-bottom: 5px;
-            color: #2d3748;
+        }
+
+        .class-subjects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .subject-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            text-align: center;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .students-list {
+            margin-top: 20px;
+        }
+
+        .student-row {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-row input[type="number"] {
+            width: 100px;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .save-marks-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: #e0e0e0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
             font-weight: 600;
         }
-        
-        .close-btn {
-            background: #e53e3e;
+
+        .tab-btn.active {
+            background: #667eea;
             color: white;
-            margin-top: 10px;
-        }
-        
-        .close-btn:hover {
-            background: #c53030;
-        }
-        
-        .save-btn {
-            background: #48bb78;
-            color: white;
-            width: 100%;
-            margin-top: 10px;
-        }
-        
-        .save-btn:hover {
-            background: #38a169;
-        }
-        
-        .no-results {
-            text-align: center;
-            padding: 40px;
-            color: #718096;
-            font-size: 18px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎓 Student Result Management System</h1>
-        
-        <div class="controls">
-            <div class="class-buttons">
-                <button class="class-btn active" onclick="selectClass(6)">Class 6</button>
-                <button class="class-btn" onclick="selectClass(7)">Class 7</button>
-                <button class="class-btn" onclick="selectClass(8)">Class 8</button>
-                <button class="class-btn" onclick="selectClass(9)">Class 9</button>
-                <button class="class-btn" onclick="selectClass(10)">Class 10</button>
+        <div class="header">
+            <h1>🎓 Student Result Management System</h1>
+            <p>Classes 6 to 10 | 20 Branches</p>
+            <button class="admin-btn" onclick="openAdminModal()">Admin Login</button>
+        </div>
+
+        <div class="content">
+            <!-- Student Search Section -->
+            <div id="studentView">
+                <div class="search-section">
+                    <h2>Search Student Result</h2>
+                    <div class="search-form">
+                        <div class="form-group">
+                            <label>Student Name</label>
+                            <input type="text" id="searchName" placeholder="Enter student name">
+                        </div>
+                        <div class="form-group">
+                            <label>Class</label>
+                            <select id="searchClass">
+                                <option value="">Select Class</option>
+                                <option value="6">Class 6</option>
+                                <option value="7">Class 7</option>
+                                <option value="8">Class 8</option>
+                                <option value="9">Class 9</option>
+                                <option value="10">Class 10</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Branch</label>
+                            <select id="searchBranch">
+                                <option value="">Select Branch</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Roll Number</label>
+                            <input type="text" id="searchRoll" placeholder="Enter roll number">
+                        </div>
+                    </div>
+                    <button class="search-btn" onclick="searchStudent()">🔍 Search Result</button>
+                </div>
+
+                <div id="resultDisplay"></div>
             </div>
-            <button class="admin-btn" onclick="showAdminModal()">+ Add New Student</button>
+
+            <!-- Admin Panel -->
+            <div id="adminPanel" class="admin-panel">
+                <div class="admin-header">
+                    <button class="back-btn" onclick="showStudentView()">← Back to Search</button>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+
+                <div id="adminDashboard">
+                    <h2 style="color: #667eea; margin-bottom: 20px;">Admin Dashboard - Manage Marks</h2>
+                    
+                    <div class="tabs" id="classTabs"></div>
+                    
+                    <div id="subjectsView" class="class-subjects"></div>
+                    
+                    <div id="marksEntryView" class="hidden">
+                        <button class="back-btn" onclick="showSubjects()">← Back to Subjects</button>
+                        <h3 id="currentSubjectTitle" style="color: #667eea; margin: 20px 0;"></h3>
+                        <div class="students-list" id="studentsList"></div>
+                        <button class="save-marks-btn" onclick="saveMarks()">💾 Save Marks</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <div class="search-section">
-            <select id="sectionSelect">
-                <option value="">All Sections</option>
-                <option value="A">Section A</option>
-                <option value="B">Section B</option>
-            </select>
-            <input type="text" id="searchInput" placeholder="Search by student name...">
-            <button class="search-btn" onclick="searchStudents()">🔍 Search</button>
-        </div>
-        
-        <div class="results" id="results"></div>
     </div>
 
     <!-- Admin Login Modal -->
-    <div class="modal" id="adminModal">
+    <div id="adminModal" class="modal">
         <div class="modal-content">
+            <span class="close-modal" onclick="closeAdminModal()">×</span>
             <h2>Admin Login</h2>
-            <div class="form-group">
-                <label>Username:</label>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Username</label>
                 <input type="text" id="adminUser" placeholder="Enter username">
             </div>
-            <div class="form-group">
-                <label>Password:</label>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Password</label>
                 <input type="password" id="adminPass" placeholder="Enter password">
             </div>
-            <button class="save-btn" onclick="verifyAdmin()">Login</button>
-            <button class="close-btn" onclick="closeModal('adminModal')">Cancel</button>
-        </div>
-    </div>
-
-    <!-- Add/Edit Student Modal -->
-    <div class="modal" id="studentModal">
-        <div class="modal-content">
-            <h2 id="modalTitle">Add New Student</h2>
-            <div class="form-group">
-                <label>Student Name:</label>
-                <input type="text" id="studentName" placeholder="Enter student name">
-            </div>
-            <div class="form-group">
-                <label>Class:</label>
-                <select id="studentClass">
-                    <option value="6">Class 6</option>
-                    <option value="7">Class 7</option>
-                    <option value="8">Class 8</option>
-                    <option value="9">Class 9</option>
-                    <option value="10">Class 10</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Section:</label>
-                <select id="studentSection">
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Roll Number:</label>
-                <input type="number" id="studentRoll" placeholder="Enter roll number">
-            </div>
-            <h3 style="margin-top: 20px; margin-bottom: 10px; color: #667eea;">Subject Marks:</h3>
-            <div class="form-group">
-                <label>Bangla:</label>
-                <input type="number" id="bangla" placeholder="Enter marks" min="0" max="100">
-            </div>
-            <div class="form-group">
-                <label>English:</label>
-                <input type="number" id="english" placeholder="Enter marks" min="0" max="100">
-            </div>
-            <div class="form-group">
-                <label>Mathematics:</label>
-                <input type="number" id="math" placeholder="Enter marks" min="0" max="100">
-            </div>
-            <div class="form-group">
-                <label>Science:</label>
-                <input type="number" id="science" placeholder="Enter marks" min="0" max="100">
-            </div>
-            <div class="form-group">
-                <label>Social Science:</label>
-                <input type="number" id="social" placeholder="Enter marks" min="0" max="100">
-            </div>
-            <div class="form-group">
-                <label>Religion:</label>
-                <input type="number" id="religion" placeholder="Enter marks" min="0" max="100">
-            </div>
-            <button class="save-btn" onclick="saveStudent()">Save Student</button>
-            <button class="close-btn" onclick="closeModal('studentModal')">Cancel</button>
+            <button class="search-btn" style="width: 100%;" onclick="adminLogin()">Login</button>
         </div>
     </div>
 
     <script>
-        let currentClass = 6;
-        let isAdmin = false;
-        let editingStudentId = null;
-        
-        // Demo data
-        let students = [
-            // Class 6
-            {id: 1, name: "Ashraful Gazi", class: 6, section: "A", roll: 1, marks: {bangla: 85, english: 78, math: 92, science: 88, social: 80, religion: 90}},
-            {id: 2, name: "Fatima Rahman", class: 6, section: "A", roll: 2, marks: {bangla: 90, english: 85, math: 88, science: 92, social: 87, religion: 93}},
-            {id: 3, name: "Karim Ahmed", class: 6, section: "B", roll: 3, marks: {bangla: 82, english: 80, math: 85, science: 84, social: 88, religion: 86}},
-            {id: 4, name: "Sadia Islam", class: 6, section: "B", roll: 4, marks: {bangla: 88, english: 92, math: 90, science: 89, social: 91, religion: 94}},
-            
-            // Class 7
-            {id: 5, name: "Rahim Uddin", class: 7, section: "A", roll: 1, marks: {bangla: 87, english: 82, math: 90, science: 85, social: 84, religion: 88}},
-            {id: 6, name: "Nusrat Jahan", class: 7, section: "A", roll: 2, marks: {bangla: 92, english: 88, math: 85, science: 90, social: 89, religion: 91}},
-            {id: 7, name: "Jubayer Khan", class: 7, section: "B", roll: 3, marks: {bangla: 80, english: 78, math: 82, science: 81, social: 85, religion: 83}},
-            {id: 8, name: "Tasnim Akter", class: 7, section: "B", roll: 4, marks: {bangla: 91, english: 89, math: 93, science: 92, social: 90, religion: 95}},
-            
-            // Class 8
-            {id: 9, name: "Ashraful Gazi", class: 8, section: "A", roll: 1, marks: {bangla: 88, english: 85, math: 95, science: 91, social: 87, religion: 92}},
-            {id: 10, name: "Mehedi Hasan", class: 8, section: "A", roll: 2, marks: {bangla: 84, english: 80, math: 88, science: 86, social: 83, religion: 87}},
-            {id: 11, name: "Tahsin Ahmed", class: 8, section: "B", roll: 3, marks: {bangla: 90, english: 87, math: 92, science: 89, social: 91, religion: 93}},
-            {id: 12, name: "Anika Tabassum", class: 8, section: "B", roll: 4, marks: {bangla: 93, english: 91, math: 94, science: 95, social: 92, religion: 96}},
-            
-            // Class 9
-            {id: 13, name: "Sakib Hossain", class: 9, section: "A", roll: 1, marks: {bangla: 86, english: 83, math: 89, science: 87, social: 85, religion: 88}},
-            {id: 14, name: "Faria Sultana", class: 9, section: "A", roll: 2, marks: {bangla: 91, english: 88, math: 90, science: 92, social: 89, religion: 94}},
-            {id: 15, name: "Raihan Kabir", class: 9, section: "B", roll: 3, marks: {bangla: 83, english: 81, math: 86, science: 84, social: 82, religion: 85}},
-            {id: 16, name: "Lamia Haque", class: 9, section: "B", roll: 4, marks: {bangla: 94, english: 92, math: 95, science: 93, social: 91, religion: 97}},
-            
-            // Class 10
-            {id: 17, name: "Tanvir Islam", class: 10, section: "A", roll: 1, marks: {bangla: 89, english: 86, math: 93, science: 90, social: 88, religion: 91}},
-            {id: 18, name: "Rifa Anjum", class: 10, section: "A", roll: 2, marks: {bangla: 95, english: 93, math: 96, science: 94, social: 92, religion: 98}},
-            {id: 19, name: "Sabbir Ahmed", class: 10, section: "B", roll: 3, marks: {bangla: 85, english: 82, math: 88, science: 86, social: 84, religion: 87}},
-            {id: 20, name: "Mithila Rahman", class: 10, section: "B", roll: 4, marks: {bangla: 92, english: 90, math: 94, science: 91, social: 89, religion: 95}}
-        ];
-        
-        function selectClass(classNum) {
-            currentClass = classNum;
-            document.querySelectorAll('.class-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            displayResults();
+        // Initialize data structure
+        let studentsData = {};
+        let currentClass = '6';
+        let currentSubject = '';
+        let isAdminLoggedIn = false;
+
+        const branches = [];
+        for (let i = 1; i <= 20; i++) {
+            branches.push(`Branch ${i}`);
         }
-        
-        function displayResults() {
-            const section = document.getElementById('sectionSelect').value;
-            const search = document.getElementById('searchInput').value.toLowerCase();
+
+        const subjects = {
+            '6': ['Bengali', 'English', 'Math', 'Science', 'Social Science'],
+            '7': ['Bengali', 'English', 'Math', 'Science', 'Social Science'],
+            '8': ['Bengali', 'English', 'Math', 'Science', 'Social Science'],
+            '9': ['Bengali', 'English', 'Math', 'Physics', 'Chemistry', 'Biology'],
+            '10': ['Bengali', 'English', 'Math', 'Physics', 'Chemistry', 'Biology']
+        };
+
+        // Populate branches dropdown
+        const branchSelect = document.getElementById('searchBranch');
+        branches.forEach(branch => {
+            const option = document.createElement('option');
+            option.value = branch;
+            option.textContent = branch;
+            branchSelect.appendChild(option);
+        });
+
+        // Initialize with sample data
+        function initializeSampleData() {
+            const classes = ['6', '7', '8', '9', '10'];
+            classes.forEach(cls => {
+                studentsData[cls] = {};
+                branches.forEach(branch => {
+                    studentsData[cls][branch] = [];
+                    for (let i = 1; i <= 10; i++) {
+                        const student = {
+                            name: `Student ${i}`,
+                            roll: i,
+                            class: cls,
+                            branch: branch,
+                            marks: {}
+                        };
+                        subjects[cls].forEach(subject => {
+                            student.marks[subject] = 0;
+                        });
+                        studentsData[cls][branch].push(student);
+                    }
+                });
+            });
+        }
+
+        initializeSampleData();
+
+        // Admin Modal Functions
+        function openAdminModal() {
+            document.getElementById('adminModal').classList.add('active');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.remove('active');
+        }
+
+        function adminLogin() {
+            const username = document.getElementById('adminUser').value;
+            const password = document.getElementById('adminPass').value;
+
+            if (username === 'admin' && password === 'admin') {
+                isAdminLoggedIn = true;
+                closeAdminModal();
+                showAdminPanel();
+            } else {
+                alert('Invalid username or password!');
+            }
+        }
+
+        function logout() {
+            isAdminLoggedIn = false;
+            showStudentView();
+        }
+
+        function showAdminPanel() {
+            document.getElementById('studentView').style.display = 'none';
+            document.getElementById('adminPanel').classList.add('active');
+            renderClassTabs();
+            showSubjects();
+        }
+
+        function showStudentView() {
+            document.getElementById('studentView').style.display = 'block';
+            document.getElementById('adminPanel').classList.remove('active');
+        }
+
+        function renderClassTabs() {
+            const tabsDiv = document.getElementById('classTabs');
+            tabsDiv.innerHTML = '';
+            ['6', '7', '8', '9', '10'].forEach(cls => {
+                const btn = document.createElement('button');
+                btn.className = 'tab-btn' + (cls === currentClass ? ' active' : '');
+                btn.textContent = `Class ${cls}`;
+                btn.onclick = () => {
+                    currentClass = cls;
+                    renderClassTabs();
+                    showSubjects();
+                };
+                tabsDiv.appendChild(btn);
+            });
+        }
+
+        function showSubjects() {
+            document.getElementById('subjectsView').classList.remove('hidden');
+            document.getElementById('marksEntryView').classList.add('hidden');
             
-            let filtered = students.filter(s => 
-                s.class === currentClass &&
-                (section === '' || s.section === section) &&
-                (search === '' || s.name.toLowerCase().includes(search))
-            );
+            const subjectsDiv = document.getElementById('subjectsView');
+            subjectsDiv.innerHTML = '';
             
-            const resultsDiv = document.getElementById('results');
+            subjects[currentClass].forEach(subject => {
+                const card = document.createElement('div');
+                card.className = 'subject-card';
+                card.innerHTML = `<h3>📚 ${subject}</h3><p>Click to enter marks</p>`;
+                card.onclick = () => showMarksEntry(subject);
+                subjectsDiv.appendChild(card);
+            });
+        }
+
+        function showMarksEntry(subject) {
+            currentSubject = subject;
+            document.getElementById('subjectsView').classList.add('hidden');
+            document.getElementById('marksEntryView').classList.remove('hidden');
+            document.getElementById('currentSubjectTitle').textContent = `Class ${currentClass} - ${subject}`;
             
-            if (filtered.length === 0) {
-                resultsDiv.innerHTML = '<div class="no-results">No students found</div>';
+            const studentsListDiv = document.getElementById('studentsList');
+            studentsListDiv.innerHTML = '';
+            
+            // Show students from all branches for this class
+            branches.forEach(branch => {
+                const branchStudents = studentsData[currentClass][branch];
+                
+                const branchTitle = document.createElement('h4');
+                branchTitle.textContent = branch;
+                branchTitle.style.color = '#667eea';
+                branchTitle.style.marginTop = '20px';
+                studentsListDiv.appendChild(branchTitle);
+                
+                branchStudents.forEach((student, index) => {
+                    const row = document.createElement('div');
+                    row.className = 'student-row';
+                    row.innerHTML = `
+                        <span><strong>${student.name}</strong> (Roll: ${student.roll})</span>
+                        <input type="number" min="0" max="100" value="${student.marks[subject] || 0}" 
+                               id="mark_${currentClass}_${branch}_${index}" 
+                               placeholder="Enter marks">
+                    `;
+                    studentsListDiv.appendChild(row);
+                });
+            });
+        }
+
+        function saveMarks() {
+            branches.forEach(branch => {
+                const branchStudents = studentsData[currentClass][branch];
+                branchStudents.forEach((student, index) => {
+                    const input = document.getElementById(`mark_${currentClass}_${branch}_${index}`);
+                    if (input) {
+                        student.marks[currentSubject] = parseInt(input.value) || 0;
+                    }
+                });
+            });
+            alert('Marks saved successfully!');
+            showSubjects();
+        }
+
+        function searchStudent() {
+            const name = document.getElementById('searchName').value.trim().toLowerCase();
+            const cls = document.getElementById('searchClass').value;
+            const branch = document.getElementById('searchBranch').value;
+            const roll = document.getElementById('searchRoll').value.trim();
+
+            if (!cls && !branch && !roll && !name) {
+                alert('Please enter at least one search criteria!');
                 return;
             }
+
+            let foundStudent = null;
+
+            // Search through all classes and branches
+            const classesToSearch = cls ? [cls] : Object.keys(studentsData);
             
-            resultsDiv.innerHTML = filtered.map(student => {
-                const total = Object.values(student.marks).reduce((a, b) => a + b, 0);
-                const avg = (total / 6).toFixed(2);
+            for (let c of classesToSearch) {
+                const branchesToSearch = branch ? [branch] : branches;
                 
-                return `
-                    <div class="student-card">
-                        <div class="student-header">
-                            <div class="student-info">
-                                <h2>${student.name}</h2>
-                                <p>Class: ${student.class} | Section: ${student.section} | Roll: ${student.roll}</p>
-                            </div>
-                            <button class="edit-btn" onclick="editStudent(${student.id})">✏️ Edit</button>
+                for (let b of branchesToSearch) {
+                    const students = studentsData[c][b];
+                    
+                    foundStudent = students.find(student => {
+                        const nameMatch = !name || student.name.toLowerCase().includes(name);
+                        const rollMatch = !roll || student.roll.toString() === roll;
+                        return nameMatch && rollMatch;
+                    });
+                    
+                    if (foundStudent) break;
+                }
+                
+                if (foundStudent) break;
+            }
+
+            if (foundStudent) {
+                displayResult(foundStudent);
+            } else {
+                document.getElementById('resultDisplay').innerHTML = `
+                    <div class="result-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <h3>❌ No Result Found</h3>
+                        <p>Please check your search criteria and try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayResult(student) {
+            let totalMarks = 0;
+            let marksRows = '';
+            
+            const classSubjects = subjects[student.class];
+            classSubjects.forEach(subject => {
+                const mark = student.marks[subject] || 0;
+                totalMarks += mark;
+                marksRows += `
+                    <tr>
+                        <td>${subject}</td>
+                        <td>${mark}</td>
+                    </tr>
+                `;
+            });
+
+            const percentage = ((totalMarks / (classSubjects.length * 100)) * 100).toFixed(2);
+            const grade = percentage >= 80 ? 'A+' : percentage >= 70 ? 'A' : percentage >= 60 ? 'B' : percentage >= 50 ? 'C' : percentage >= 40 ? 'D' : 'F';
+
+            document.getElementById('resultDisplay').innerHTML = `
+                <div class="result-card">
+                    <h3>🎓 Student Result</h3>
+                    <div class="result-info">
+                        <div class="info-item">
+                            <strong>Name:</strong> ${student.name}
                         </div>
+                        <div class="info-item">
+                            <strong>Roll:</strong> ${student.roll}
+                        </div>
+                        <div class="info-item">
+                            <strong>Class:</strong> ${student.class}
+                        </div>
+                        <div class="info-item">
+                            <strong>Branch:</strong> ${student.branch}
+                        </div>
+                    </div>
+                    <div class="marks-table">
                         <table>
                             <thead>
                                 <tr>
@@ -442,163 +685,25 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Bangla</td>
-                                    <td>${student.marks.bangla}</td>
-                                </tr>
-                                <tr>
-                                    <td>English</td>
-                                    <td>${student.marks.english}</td>
-                                </tr>
-                                <tr>
-                                    <td>Mathematics</td>
-                                    <td>${student.marks.math}</td>
-                                </tr>
-                                <tr>
-                                    <td>Science</td>
-                                    <td>${student.marks.science}</td>
-                                </tr>
-                                <tr>
-                                    <td>Social Science</td>
-                                    <td>${student.marks.social}</td>
-                                </tr>
-                                <tr>
-                                    <td>Religion</td>
-                                    <td>${student.marks.religion}</td>
+                                ${marksRows}
+                                <tr class="total-row">
+                                    <td>Total</td>
+                                    <td>${totalMarks} / ${classSubjects.length * 100}</td>
                                 </tr>
                                 <tr class="total-row">
-                                    <td>Total Marks</td>
-                                    <td>${total} / 600</td>
+                                    <td>Percentage</td>
+                                    <td>${percentage}%</td>
                                 </tr>
                                 <tr class="total-row">
-                                    <td>Average</td>
-                                    <td>${avg}%</td>
+                                    <td>Grade</td>
+                                    <td>${grade}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                `;
-            }).join('');
+                </div>
+            `;
         }
-        
-        function searchStudents() {
-            displayResults();
-        }
-        
-        function showAdminModal() {
-            document.getElementById('adminModal').style.display = 'flex';
-        }
-        
-        function verifyAdmin() {
-            const user = document.getElementById('adminUser').value;
-            const pass = document.getElementById('adminPass').value;
-            
-            if (user === 'admin' && pass === 'admin') {
-                isAdmin = true;
-                closeModal('adminModal');
-                showStudentModal();
-            } else {
-                alert('Invalid username or password!');
-            }
-        }
-        
-        function showStudentModal() {
-            document.getElementById('modalTitle').textContent = 'Add New Student';
-            document.getElementById('studentModal').style.display = 'flex';
-            editingStudentId = null;
-            clearForm();
-        }
-        
-        function editStudent(id) {
-            if (!isAdmin) {
-                showAdminModal();
-                editingStudentId = id;
-                return;
-            }
-            
-            const student = students.find(s => s.id === id);
-            if (!student) return;
-            
-            document.getElementById('modalTitle').textContent = 'Edit Student';
-            document.getElementById('studentName').value = student.name;
-            document.getElementById('studentClass').value = student.class;
-            document.getElementById('studentSection').value = student.section;
-            document.getElementById('studentRoll').value = student.roll;
-            document.getElementById('bangla').value = student.marks.bangla;
-            document.getElementById('english').value = student.marks.english;
-            document.getElementById('math').value = student.marks.math;
-            document.getElementById('science').value = student.marks.science;
-            document.getElementById('social').value = student.marks.social;
-            document.getElementById('religion').value = student.marks.religion;
-            
-            editingStudentId = id;
-            document.getElementById('studentModal').style.display = 'flex';
-        }
-        
-        function saveStudent() {
-            const name = document.getElementById('studentName').value;
-            const cls = parseInt(document.getElementById('studentClass').value);
-            const section = document.getElementById('studentSection').value;
-            const roll = parseInt(document.getElementById('studentRoll').value);
-            const bangla = parseInt(document.getElementById('bangla').value);
-            const english = parseInt(document.getElementById('english').value);
-            const math = parseInt(document.getElementById('math').value);
-            const science = parseInt(document.getElementById('science').value);
-            const social = parseInt(document.getElementById('social').value);
-            const religion = parseInt(document.getElementById('religion').value);
-            
-            if (!name || !roll || isNaN(bangla) || isNaN(english) || isNaN(math) || isNaN(science) || isNaN(social) || isNaN(religion)) {
-                alert('Please fill all fields correctly!');
-                return;
-            }
-            
-            if (editingStudentId) {
-                const student = students.find(s => s.id === editingStudentId);
-                student.name = name;
-                student.class = cls;
-                student.section = section;
-                student.roll = roll;
-                student.marks = {bangla, english, math, science, social, religion};
-            } else {
-                const newId = Math.max(...students.map(s => s.id)) + 1;
-                students.push({
-                    id: newId,
-                    name,
-                    class: cls,
-                    section,
-                    roll,
-                    marks: {bangla, english, math, science, social, religion}
-                });
-            }
-            
-            closeModal('studentModal');
-            displayResults();
-            isAdmin = false;
-        }
-        
-        function clearForm() {
-            document.getElementById('studentName').value = '';
-            document.getElementById('studentClass').value = '6';
-            document.getElementById('studentSection').value = 'A';
-            document.getElementById('studentRoll').value = '';
-            document.getElementById('bangla').value = '';
-            document.getElementById('english').value = '';
-            document.getElementById('math').value = '';
-            document.getElementById('science').value = '';
-            document.getElementById('social').value = '';
-            document.getElementById('religion').value = '';
-        }
-        
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-            if (modalId === 'adminModal') {
-                document.getElementById('adminUser').value = '';
-                document.getElementById('adminPass').value = '';
-            }
-        }
-        
-        // Initial display
-        displayResults();
     </script>
 </body>
 </html>
