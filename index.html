@@ -124,6 +124,23 @@
             transform: translateY(-2px);
         }
 
+        .add-student-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s;
+            margin-left: 10px;
+        }
+
+        .add-student-btn:hover {
+            transform: translateY(-2px);
+        }
+
         .result-card {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
@@ -200,6 +217,7 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            overflow-y: auto;
         }
 
         .modal.active {
@@ -210,8 +228,11 @@
             background: white;
             padding: 40px;
             border-radius: 20px;
-            max-width: 400px;
+            max-width: 500px;
             width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            margin: 20px;
         }
 
         .modal-content h2 {
@@ -331,13 +352,69 @@
             background: #667eea;
             color: white;
         }
+
+        .class-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .firebase-config {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .firebase-config h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .firebase-config code {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            display: block;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background: #dc3545;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .connection-status.connected {
+            background: #28a745;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🎓 Student Result Management System</h1>
-            <p>Classes 6 to 10 | 20 Branches</p>
+            <p>Classes 6 to 10 | Branch A & B</p>
             <button class="admin-btn" onclick="openAdminModal()">Admin Login</button>
         </div>
 
@@ -366,6 +443,8 @@
                             <label>Branch</label>
                             <select id="searchBranch">
                                 <option value="">Select Branch</option>
+                                <option value="A">Branch A</option>
+                                <option value="B">Branch B</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -377,6 +456,19 @@
                 </div>
 
                 <div id="resultDisplay"></div>
+
+                <!-- Firebase Setup Instructions -->
+                <div class="firebase-config">
+                    <h3>✅ Firebase Connected Successfully!</h3>
+                    <p style="margin-bottom: 15px; color: #28a745; font-weight: bold;">Your website is now connected to Firebase Database.</p>
+                    <p style="color: #666; margin-bottom: 10px;">📊 <strong>Demo Data:</strong> 15 sample students have been added automatically (Class 6-7, Branch A & B)</p>
+                    <p style="color: #666; margin-bottom: 10px;">🎓 <strong>Try searching:</strong> "রহিম আহমেদ" or Roll: 1, Class: 6, Branch: A</p>
+                    <p style="color: #666; margin-bottom: 15px;">👨‍🏫 <strong>Admin Access:</strong> Username: admin, Password: admin</p>
+                    
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                        <p style="color: #856404; margin: 0;"><strong>⚠️ Important:</strong> Make sure to set Firestore Rules in Firebase Console to allow read/write access.</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Admin Panel -->
@@ -387,11 +479,17 @@
                 </div>
 
                 <div id="adminDashboard">
-                    <h2 style="color: #667eea; margin-bottom: 20px;">Admin Dashboard - Manage Marks</h2>
+                    <h2 style="color: #667eea; margin-bottom: 20px;">Admin Dashboard - Manage Students & Marks</h2>
                     
                     <div class="tabs" id="classTabs"></div>
                     
-                    <div id="subjectsView" class="class-subjects"></div>
+                    <div id="subjectsView">
+                        <div class="class-header">
+                            <h3 id="classTitle" style="color: #667eea;"></h3>
+                            <button class="add-student-btn" onclick="openAddStudentModal()">➕ Add New Student</button>
+                        </div>
+                        <div class="class-subjects" id="subjectsGrid"></div>
+                    </div>
                     
                     <div id="marksEntryView" class="hidden">
                         <button class="back-btn" onclick="showSubjects()">← Back to Subjects</button>
@@ -421,17 +519,114 @@
         </div>
     </div>
 
+    <!-- Add Student Modal -->
+    <div id="addStudentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeAddStudentModal()">×</span>
+            <h2>Add New Student</h2>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Student Name *</label>
+                <input type="text" id="newStudentName" placeholder="Enter student name">
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Roll Number *</label>
+                <input type="number" id="newStudentRoll" placeholder="Enter roll number">
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Class *</label>
+                <select id="newStudentClass">
+                    <option value="">Select Class</option>
+                    <option value="6">Class 6</option>
+                    <option value="7">Class 7</option>
+                    <option value="8">Class 8</option>
+                    <option value="9">Class 9</option>
+                    <option value="10">Class 10</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Branch *</label>
+                <select id="newStudentBranch">
+                    <option value="">Select Branch</option>
+                    <option value="A">Branch A</option>
+                    <option value="B">Branch B</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Father's Name</label>
+                <input type="text" id="newStudentFather" placeholder="Enter father's name">
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Mother's Name</label>
+                <input type="text" id="newStudentMother" placeholder="Enter mother's name">
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Phone Number</label>
+                <input type="text" id="newStudentPhone" placeholder="Enter phone number">
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Address</label>
+                <input type="text" id="newStudentAddress" placeholder="Enter address">
+            </div>
+            <button class="search-btn" style="width: 100%;" onclick="addNewStudent()">➕ Add Student</button>
+        </div>
+    </div>
+
+    <!-- Connection Status -->
+    <div id="connectionStatus" class="connection-status">🔴 Not Connected to Firebase</div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <script>
-        // Initialize data structure
+        // ===== FIREBASE CONFIGURATION =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyCy9gJJsEfgoT1CLAtaNiaykrrPSTC9q1g",
+            authDomain: "sctop-d22bc.firebaseapp.com",
+            projectId: "sctop-d22bc",
+            storageBucket: "sctop-d22bc.firebasestorage.app",
+            messagingSenderId: "733891150436",
+            appId: "1:733891150436:web:8ca3a0057030914d8f9571",
+            measurementId: "G-PLFYFLC3FE"
+        };
+
+        // Initialize Firebase
+        let db;
+        let isFirebaseConnected = false;
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            isFirebaseConnected = true;
+            updateConnectionStatus(true);
+            console.log("Firebase connected successfully!");
+            
+            // Add demo data on first load
+            checkAndAddDemoData();
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            updateConnectionStatus(false);
+            loadFromLocalStorage();
+        }
+
+        function updateConnectionStatus(connected) {
+            const statusEl = document.getElementById('connectionStatus');
+            if (connected) {
+                statusEl.textContent = '🟢 Connected to Firebase';
+                statusEl.classList.add('connected');
+            } else {
+                statusEl.textContent = '🔴 Using Local Storage';
+                statusEl.classList.remove('connected');
+            }
+        }
+
+        // ===== DATA MANAGEMENT =====
         let studentsData = {};
         let currentClass = '6';
         let currentSubject = '';
         let isAdminLoggedIn = false;
 
-        const branches = [];
-        for (let i = 1; i <= 20; i++) {
-            branches.push(`Branch ${i}`);
-        }
+        const branches = ['A', 'B'];
 
         const subjects = {
             '6': ['Bengali', 'English', 'Math', 'Science', 'Social Science'],
@@ -441,42 +636,177 @@
             '10': ['Bengali', 'English', 'Math', 'Physics', 'Chemistry', 'Biology']
         };
 
-        // Populate branches dropdown
-        const branchSelect = document.getElementById('searchBranch');
-        branches.forEach(branch => {
-            const option = document.createElement('option');
-            option.value = branch;
-            option.textContent = branch;
-            branchSelect.appendChild(option);
-        });
-
-        // Initialize with sample data
-        function initializeSampleData() {
+        // Initialize data structure
+        function initializeData() {
             const classes = ['6', '7', '8', '9', '10'];
             classes.forEach(cls => {
                 studentsData[cls] = {};
                 branches.forEach(branch => {
                     studentsData[cls][branch] = [];
-                    for (let i = 1; i <= 10; i++) {
-                        const student = {
-                            name: `Student ${i}`,
-                            roll: i,
-                            class: cls,
-                            branch: branch,
-                            marks: {}
-                        };
-                        subjects[cls].forEach(subject => {
-                            student.marks[subject] = 0;
-                        });
-                        studentsData[cls][branch].push(student);
-                    }
                 });
             });
         }
 
-        initializeSampleData();
+        initializeData();
 
-        // Admin Modal Functions
+        // ===== ADD DEMO DATA TO FIREBASE =====
+        async function checkAndAddDemoData() {
+            try {
+                const snapshot = await db.collection('students').limit(1).get();
+                
+                // If no data exists, add demo data
+                if (snapshot.empty) {
+                    console.log("Adding demo data to Firebase...");
+                    await addDemoDataToFirebase();
+                }
+            } catch (error) {
+                console.error("Error checking demo data:", error);
+            }
+        }
+
+        async function addDemoDataToFirebase() {
+            const demoStudents = [
+                // Class 6, Branch A
+                { name: "রহিম আহমেদ", roll: 1, class: "6", branch: "A", fatherName: "আব্দুল আহমেদ", motherName: "ফাতেমা বেগম", phone: "01711111111", address: "খুলনা সদর", marks: { Bengali: 85, English: 78, Math: 92, Science: 88, "Social Science": 80 }},
+                { name: "করিম হোসেন", roll: 2, class: "6", branch: "A", fatherName: "মোহাম্মদ হোসেন", motherName: "রোকেয়া খাতুন", phone: "01711111112", address: "খুলনা", marks: { Bengali: 75, English: 82, Math: 88, Science: 79, "Social Science": 85 }},
+                { name: "সুমাইয়া আক্তার", roll: 3, class: "6", branch: "A", fatherName: "জাকির আক্তার", motherName: "শাহিনা পারভীন", phone: "01711111113", address: "দৌলতপুর", marks: { Bengali: 90, English: 88, Math: 85, Science: 92, "Social Science": 87 }},
+                { name: "তানিয়া রহমান", roll: 4, class: "6", branch: "A", fatherName: "আবুল রহমান", motherName: "নাসরিন সুলতানা", phone: "01711111114", address: "খুলনা সদর", marks: { Bengali: 82, English: 79, Math: 90, Science: 85, "Social Science": 83 }},
+                { name: "মাহমুদ হাসান", roll: 5, class: "6", branch: "A", fatherName: "কামাল হাসান", motherName: "সালমা বেগম", phone: "01711111115", address: "খালিশপুর", marks: { Bengali: 88, English: 85, Math: 87, Science: 90, "Social Science": 86 }},
+                
+                // Class 6, Branch B
+                { name: "আয়েশা সিদ্দিকা", roll: 1, class: "6", branch: "B", fatherName: "রফিক সিদ্দিকা", motherName: "রেহানা খাতুন", phone: "01711111121", address: "খুলনা", marks: { Bengali: 92, English: 89, Math: 94, Science: 91, "Social Science": 90 }},
+                { name: "নাফিস আহমেদ", roll: 2, class: "6", branch: "B", fatherName: "শফিক আহমেদ", motherName: "নাজমা পারভীন", phone: "01711111122", address: "সোনাডাঙ্গা", marks: { Bengali: 80, English: 83, Math: 86, Science: 82, "Social Science": 84 }},
+                { name: "তাসনিম জাহান", roll: 3, class: "6", branch: "B", fatherName: "জাহিদ জাহান", motherName: "তাহমিনা সুলতানা", phone: "01711111123", address: "খুলনা সদর", marks: { Bengali: 87, English: 90, Math: 88, Science: 89, "Social Science": 91 }},
+                { name: "সাকিব হাসান", roll: 4, class: "6", branch: "B", fatherName: "নাসির হাসান", motherName: "শামসুন নাহার", phone: "01711111124", address: "দৌলতপুর", marks: { Bengali: 84, English: 81, Math: 89, Science: 86, "Social Science": 83 }},
+                { name: "মীম আক্তার", roll: 5, class: "6", branch: "B", fatherName: "আমিন আক্তার", motherName: "রুমানা খাতুন", phone: "01711111125", address: "খালিশপুর", marks: { Bengali: 91, English: 87, Math: 92, Science: 93, "Social Science": 89 }},
+
+                // Class 7, Branch A
+                { name: "রাফি ইসলাম", roll: 1, class: "7", branch: "A", fatherName: "শাহিন ইসলাম", motherName: "পারভীন সুলতানা", phone: "01711111131", address: "খুলনা", marks: { Bengali: 86, English: 84, Math: 90, Science: 87, "Social Science": 85 }},
+                { name: "সাদিয়া খান", roll: 2, class: "7", branch: "A", fatherName: "আরিফ খান", motherName: "মরিয়ম খাতুন", phone: "01711111132", address: "খুলনা সদর", marks: { Bengali: 89, English: 91, Math: 88, Science: 90, "Social Science": 92 }},
+                { name: "তৌহিদ রহমান", roll: 3, class: "7", branch: "A", fatherName: "মাহমুদ রহমান", motherName: "শিরিন আক্তার", phone: "01711111133", address: "দৌলতপুর", marks: { Bengali: 82, English: 80, Math: 85, Science: 83, "Social Science": 81 }},
+
+                // Class 7, Branch B
+                { name: "জান্নাত আরা", roll: 1, class: "7", branch: "B", fatherName: "রশিদ আরা", motherName: "নাহিদা বেগম", phone: "01711111141", address: "খালিশপুর", marks: { Bengali: 93, English: 90, Math: 92, Science: 94, "Social Science": 91 }},
+                { name: "ফাহিম হোসেন", roll: 2, class: "7", branch: "B", fatherName: "সেলিম হোসেন", motherName: "রোকসানা খাতুন", phone: "01711111142", address: "সোনাডাঙ্গা", marks: { Bengali: 85, English: 87, Math: 89, Science: 86, "Social Science": 88 }},
+            ];
+
+            const batch = db.batch();
+            
+            for (const student of demoStudents) {
+                const docRef = db.collection('students').doc();
+                batch.set(docRef, student);
+            }
+
+            await batch.commit();
+            console.log("Demo data added successfully!");
+            alert("✅ Demo data has been added to Firebase! You can now search for students and manage marks.");
+            
+            // Reload students
+            await loadStudentsFromFirebase();
+        }
+
+        // ===== FIREBASE FUNCTIONS =====
+        async function loadStudentsFromFirebase() {
+            if (!isFirebaseConnected) {
+                loadFromLocalStorage();
+                return;
+            }
+
+            try {
+                const snapshot = await db.collection('students').get();
+                initializeData();
+                
+                snapshot.forEach(doc => {
+                    const student = doc.data();
+                    student.id = doc.id;
+                    if (studentsData[student.class] && studentsData[student.class][student.branch]) {
+                        studentsData[student.class][student.branch].push(student);
+                    }
+                });
+                
+                console.log("Students loaded from Firebase");
+            } catch (error) {
+                console.error("Error loading students:", error);
+                loadFromLocalStorage();
+            }
+        }
+
+        async function saveStudentToFirebase(student) {
+            if (!isFirebaseConnected) {
+                saveToLocalStorage();
+                return;
+            }
+
+            try {
+                if (student.id) {
+                    await db.collection('students').doc(student.id).set(student);
+                } else {
+                    const docRef = await db.collection('students').add(student);
+                    student.id = docRef.id;
+                }
+                console.log("Student saved to Firebase");
+            } catch (error) {
+                console.error("Error saving student:", error);
+                saveToLocalStorage();
+            }
+        }
+
+        async function deleteStudentFromFirebase(studentId) {
+            if (!isFirebaseConnected) {
+                saveToLocalStorage();
+                return;
+            }
+
+            try {
+                await db.collection('students').doc(studentId).delete();
+                console.log("Student deleted from Firebase");
+            } catch (error) {
+                console.error("Error deleting student:", error);
+            }
+        }
+
+        // ===== LOCAL STORAGE FALLBACK =====
+        function saveToLocalStorage() {
+            localStorage.setItem('studentsData', JSON.stringify(studentsData));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('studentsData');
+            if (saved) {
+                studentsData = JSON.parse(saved);
+            } else {
+                // Add sample data
+                addSampleData();
+            }
+        }
+
+        function addSampleData() {
+            branches.forEach(branch => {
+                for (let i = 1; i <= 5; i++) {
+                    const student = {
+                        name: `Student ${i}`,
+                        roll: i,
+                        class: '6',
+                        branch: branch,
+                        fatherName: `Father ${i}`,
+                        motherName: `Mother ${i}`,
+                        phone: `01712345${i}${i}${i}`,
+                        address: `Address ${i}`,
+                        marks: {}
+                    };
+                    subjects['6'].forEach(subject => {
+                        student.marks[subject] = 0;
+                    });
+                    studentsData['6'][branch].push(student);
+                }
+            });
+            saveToLocalStorage();
+        }
+
+        // Load data on page load
+        loadStudentsFromFirebase();
+
+        // ===== MODAL FUNCTIONS =====
         function openAdminModal() {
             document.getElementById('adminModal').classList.add('active');
         }
@@ -485,6 +815,25 @@
             document.getElementById('adminModal').classList.remove('active');
         }
 
+        function openAddStudentModal() {
+            document.getElementById('newStudentClass').value = currentClass;
+            document.getElementById('addStudentModal').classList.add('active');
+        }
+
+        function closeAddStudentModal() {
+            document.getElementById('addStudentModal').classList.remove('active');
+            // Clear form
+            document.getElementById('newStudentName').value = '';
+            document.getElementById('newStudentRoll').value = '';
+            document.getElementById('newStudentClass').value = '';
+            document.getElementById('newStudentBranch').value = '';
+            document.getElementById('newStudentFather').value = '';
+            document.getElementById('newStudentMother').value = '';
+            document.getElementById('newStudentPhone').value = '';
+            document.getElementById('newStudentAddress').value = '';
+        }
+
+        // ===== ADMIN FUNCTIONS =====
         function adminLogin() {
             const username = document.getElementById('adminUser').value;
             const password = document.getElementById('adminPass').value;
@@ -535,7 +884,9 @@
             document.getElementById('subjectsView').classList.remove('hidden');
             document.getElementById('marksEntryView').classList.add('hidden');
             
-            const subjectsDiv = document.getElementById('subjectsView');
+            document.getElementById('classTitle').textContent = `Class ${currentClass}`;
+            
+            const subjectsDiv = document.getElementById('subjectsGrid');
             subjectsDiv.innerHTML = '';
             
             subjects[currentClass].forEach(subject => {
@@ -556,42 +907,126 @@
             const studentsListDiv = document.getElementById('studentsList');
             studentsListDiv.innerHTML = '';
             
-            // Show students from all branches for this class
             branches.forEach(branch => {
                 const branchStudents = studentsData[currentClass][branch];
                 
-                const branchTitle = document.createElement('h4');
-                branchTitle.textContent = branch;
-                branchTitle.style.color = '#667eea';
-                branchTitle.style.marginTop = '20px';
-                studentsListDiv.appendChild(branchTitle);
-                
-                branchStudents.forEach((student, index) => {
-                    const row = document.createElement('div');
-                    row.className = 'student-row';
-                    row.innerHTML = `
-                        <span><strong>${student.name}</strong> (Roll: ${student.roll})</span>
-                        <input type="number" min="0" max="100" value="${student.marks[subject] || 0}" 
-                               id="mark_${currentClass}_${branch}_${index}" 
-                               placeholder="Enter marks">
-                    `;
-                    studentsListDiv.appendChild(row);
-                });
+                if (branchStudents.length > 0) {
+                    const branchTitle = document.createElement('h4');
+                    branchTitle.textContent = `Branch ${branch}`;
+                    branchTitle.style.color = '#667eea';
+                    branchTitle.style.marginTop = '20px';
+                    studentsListDiv.appendChild(branchTitle);
+                    
+                    branchStudents.forEach((student, index) => {
+                        const row = document.createElement('div');
+                        row.className = 'student-row';
+                        row.innerHTML = `
+                            <span><strong>${student.name}</strong> (Roll: ${student.roll})</span>
+                            <div>
+                                <input type="number" min="0" max="100" value="${student.marks[subject] || 0}" 
+                                       id="mark_${currentClass}_${branch}_${index}" 
+                                       placeholder="Enter marks">
+                                <button class="delete-btn" onclick="deleteStudent('${currentClass}', '${branch}', ${index})">🗑️ Delete</button>
+                            </div>
+                        `;
+                        studentsListDiv.appendChild(row);
+                    });
+                }
             });
         }
 
-        function saveMarks() {
-            branches.forEach(branch => {
+        async function saveMarks() {
+            for (const branch of branches) {
                 const branchStudents = studentsData[currentClass][branch];
-                branchStudents.forEach((student, index) => {
+                for (let index = 0; index < branchStudents.length; index++) {
+                    const student = branchStudents[index];
                     const input = document.getElementById(`mark_${currentClass}_${branch}_${index}`);
                     if (input) {
                         student.marks[currentSubject] = parseInt(input.value) || 0;
+                        await saveStudentToFirebase(student);
                     }
-                });
-            });
+                }
+            }
             alert('Marks saved successfully!');
             showSubjects();
+        }
+
+        async function addNewStudent() {
+            const name = document.getElementById('newStudentName').value.trim();
+            const roll = document.getElementById('newStudentRoll').value.trim();
+            const cls = document.getElementById('newStudentClass').value;
+            const branch = document.getElementById('newStudentBranch').value;
+            const father = document.getElementById('newStudentFather').value.trim();
+            const mother = document.getElementById('newStudentMother').value.trim();
+            const phone = document.getElementById('newStudentPhone').value.trim();
+            const address = document.getElementById('newStudentAddress').value.trim();
+
+            if (!name || !roll || !cls || !branch) {
+                alert('Please fill all required fields (Name, Roll, Class, Branch)!');
+                return;
+            }
+
+            // Check if roll already exists in the branch
+            const existingStudent = studentsData[cls][branch].find(s => s.roll.toString() === roll);
+            if (existingStudent) {
+                alert('A student with this roll number already exists in this branch!');
+                return;
+            }
+
+            const newStudent = {
+                name: name,
+                roll: parseInt(roll),
+                class: cls,
+                branch: branch,
+                fatherName: father,
+                motherName: mother,
+                phone: phone,
+                address: address,
+                marks: {}
+            };
+
+            // Initialize marks for all subjects
+            subjects[cls].forEach(subject => {
+                newStudent.marks[subject] = 0;
+            });
+
+            studentsData[cls][branch].push(newStudent);
+            await saveStudentToFirebase(newStudent);
+            
+            if (!isFirebaseConnected) {
+                saveToLocalStorage();
+            }
+
+            alert('Student added successfully!');
+            closeAddStudentModal();
+            
+            // Refresh the current view if in admin panel
+            if (isAdminLoggedIn) {
+                currentClass = cls;
+                renderClassTabs();
+                showSubjects();
+            }
+        }
+
+        async function deleteStudent(cls, branch, index) {
+            if (!confirm('Are you sure you want to delete this student?')) {
+                return;
+            }
+
+            const student = studentsData[cls][branch][index];
+            
+            if (student.id) {
+                await deleteStudentFromFirebase(student.id);
+            }
+            
+            studentsData[cls][branch].splice(index, 1);
+            
+            if (!isFirebaseConnected) {
+                saveToLocalStorage();
+            }
+
+            alert('Student deleted successfully!');
+            showMarksEntry(currentSubject);
         }
 
         function searchStudent() {
@@ -607,7 +1042,6 @@
 
             let foundStudent = null;
 
-            // Search through all classes and branches
             const classesToSearch = cls ? [cls] : Object.keys(studentsData);
             
             for (let c of classesToSearch) {
@@ -675,6 +1109,10 @@
                         <div class="info-item">
                             <strong>Branch:</strong> ${student.branch}
                         </div>
+                        ${student.fatherName ? `<div class="info-item"><strong>Father:</strong> ${student.fatherName}</div>` : ''}
+                        ${student.motherName ? `<div class="info-item"><strong>Mother:</strong> ${student.motherName}</div>` : ''}
+                        ${student.phone ? `<div class="info-item"><strong>Phone:</strong> ${student.phone}</div>` : ''}
+                        ${student.address ? `<div class="info-item"><strong>Address:</strong> ${student.address}</div>` : ''}
                     </div>
                     <div class="marks-table">
                         <table>
