@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dumuria Technical School & College - Result System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles if needed, but Tailwind handles most */
+        .page { display: none; }
+        .active-page { display: block; }
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 1rem;
+        }
+        .modal-content {
+            background-color: white;
+            border-radius: 0.5rem;
+            max-width: 48rem; /* Equivalent to max-w-3xl */
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+        /* PDF specific styles for download */
+        .pdf-content {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .pdf-header {
+            text-align: center;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .pdf-header h1 { color: #1e40af; margin: 5px 0; font-size: 28px; }
+        .pdf-header h2 { color: #4b5563; margin: 5px 0; font-size: 18px; }
+        .pdf-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f3f4f6;
+            border-radius: 8px;
+        }
+        .pdf-info-item { margin: 5px 0; }
+        .pdf-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .pdf-table th, .pdf-table td {
+            border: 2px solid #2563eb;
+            padding: 12px;
+            text-align: center;
+        }
+        .pdf-table th {
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+        }
+        .pdf-table tr:nth-child(even) { background: #eff6ff; }
+        .pdf-total { font-weight: bold; background: #dbeafe !important; font-size: 18px; }
+        .pdf-footer { margin-top: 30px; text-align: center; color: #6b7280; }
+
+        /* Ensure icons are available - using simple text/emoji as lucide-react is not available */
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+
+    <div id="loading" class="min-h-screen flex items-center justify-center text-2xl text-blue-600 font-semibold">
+        Loading...
+    </div>
+
+    <div id="home-page" class="page container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h1 class="text-4xl font-bold text-center text-blue-900 mb-2">
+                🎓 Dumuria Government Technical School & College
+            </h1>
+            <p class="text-center text-gray-600">Student Result Management System</p>
+        </div>
+
+        <div class="flex justify-end mb-6">
+            <button onclick="setPage('login')" class="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
+                👤 Admin Login
+            </button>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🔍 Search Student Result</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <input type="text" id="search-name" placeholder="Student Name" class="border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none"/>
+                <input type="text" id="search-roll" placeholder="Roll Number" class="border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none"/>
+                <select id="search-class" class="border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none">
+                    <option value="">Select Class</option>
+                    <option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+                </select>
+                <select id="search-branch" class="border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none">
+                    <option value="">Select Branch</option>
+                    <option value="A">A</option><option value="B">B</option>
+                </select>
+            </div>
+            <button onclick="handleSearch()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                🔍 Search Result
+            </button>
+            <div id="search-result-display" class="mt-6">
+                </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📋 All Students (Demo)</h2>
+            <div id="all-students-list" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                </div>
+        </div>
+    </div>
+
+    <div id="login-page" class="page min-h-screen flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
+            <h2 class="text-3xl font-bold text-center text-blue-900 mb-6">🔐 Admin Login</h2>
+            <input type="text" id="login-username" placeholder="Username" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 mb-4 focus:border-blue-500 focus:outline-none"/>
+            <input type="password" id="login-password" placeholder="Password" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 mb-6 focus:border-blue-500 focus:outline-none"/>
+            <button onclick="handleLogin()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition mb-4">
+                Login
+            </button>
+            <button onclick="setPage('home')" class="w-full bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition">
+                Back to Home
+            </button>
+        </div>
+    </div>
+
+    <div id="admin-page" class="page container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-blue-900">👨‍🏫 Admin Panel</h1>
+            <button onclick="handleLogout()" class="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition">
+                🚪 Logout
+            </button>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">➕ Add New Student</h2>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+                <input type="text" id="new-student-name" placeholder="Student Name" class="border-2 border-gray-300 rounded-lg px-4 py-2"/>
+                <input type="number" id="new-student-roll" placeholder="Roll" class="border-2 border-gray-300 rounded-lg px-4 py-2"/>
+                <select id="new-student-class" onchange="updateNewStudentForm(this.value)" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                    <option value="6">Class 6</option><option value="7">Class 7</option><option value="8">Class 8</option><option value="9">Class 9</option><option value="10">Class 10</option>
+                </select>
+                <select id="new-student-branch" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                    <option value="A">Branch A</option><option value="B">Branch B</option>
+                </select>
+                <select id="new-student-department" class="border-2 border-gray-300 rounded-lg px-4 py-2 hidden">
+                    <option value="">Select Department</option>
+                    <option value="Civil">Civil</option><option value="Computer">Computer</option><option value="Electrical">Electrical</option><option value="Mechanical">Mechanical</option>
+                </select>
+            </div>
+            <button onclick="handleAddStudent()" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2">
+                ➕ Add Student
+            </button>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📝 Enter Marks by Subject</h2>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 font-semibold mb-2">Select Class:</label>
+                <div id="admin-class-selection" class="flex flex-wrap gap-2">
+                    </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 font-semibold mb-2">Select Subject:</label>
+                <div id="admin-subject-selection" class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    </div>
+            </div>
+
+            <div id="mark-entry-table-container" class="overflow-x-auto hidden">
+                <h3 id="mark-entry-header" class="text-xl font-bold text-gray-800 mb-4"></h3>
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-blue-600 text-white">
+                            <th class="border border-gray-300 p-3">Student Name</th>
+                            <th class="border border-gray-300 p-3">Roll</th>
+                            <th class="border border-gray-300 p-3">Branch</th>
+                            <th id="mark-entry-dept-header" class="border border-gray-300 p-3 hidden">Department</th>
+                            <th class="border border-gray-300 p-3">Marks (out of 100)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mark-entry-tbody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="student-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-blue-900">Student Result</h2>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                    ⬅️
+                </button>
+            </div>
+
+            <div id="modal-student-info" class="bg-blue-50 p-4 rounded-lg mb-4">
+                </div>
+
+            <table class="w-full border-collapse mb-4">
+                <thead>
+                    <tr class="bg-blue-600 text-white">
+                        <th class="border border-gray-300 p-3">Subject</th>
+                        <th class="border border-gray-300 p-3">Marks</th>
+                    </tr>
+                </thead>
+                <tbody id="modal-result-tbody">
+                    </tbody>
+            </table>
+
+            <button id="modal-download-btn" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 flex items-center justify-center gap-2">
+                ⬇️ Download Result PDF
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Global State ---
+        let students = [];
+        let currentPage = 'home';
+        let isAdmin = false;
+        let selectedClass = '6';
+        let selectedSubject = '';
+        let selectedStudent = null;
+
+        // --- Constants (Subjects, Departments) ---
+        const subjects = {
+            '6': ['Bangla', 'English', 'Math', 'Science', 'Social Science', 'Religion'],
+            '7': ['Bangla', 'English', 'Math', 'Science', 'Social Science', 'Religion'],
+            '8': ['Bangla', 'English', 'Math', 'Science', 'Social Science', 'Religion'],
+            '9-Civil': ['Bangla', 'English', 'Math', 'Science', 'Trade 1', 'Trade 2'],
+            '9-Computer': ['Bangla', 'English', 'Math', 'Science', 'Computer 1', 'Computer 2'],
+            '9-Electrical': ['Bangla', 'English', 'Math', 'Science', 'Electrical 1', 'Electrical 2'],
+            '9-Mechanical': ['Bangla', 'English', 'Math', 'Science', 'Mechanical 1', 'Mechanical 2'],
+            '10-Civil': ['Bangla', 'English', 'Math', 'Science', 'Trade 1', 'Trade 2'],
+            '10-Computer': ['Bangla', 'English', 'Math', 'Science', 'Computer 1', 'Computer 2'],
+            '10-Electrical': ['Bangla', 'English', 'Math', 'Science', 'Electrical 1', 'Electrical 2'],
+            '10-Mechanical': ['Bangla', 'English', 'Math', 'Science', 'Mechanical 1', 'Mechanical 2']
+        };
+
+        const departments = ['Civil', 'Computer', 'Electrical', 'Mechanical'];
+
+        // --- Utility Functions ---
+
+        /** Generates unique ID */
+        const generateId = (cls, branch, roll) => `${cls}-${branch}-${roll}`;
+
+        /** Calculates total marks for a student */
+        const calculateTotal = (marks) => {
+            return Object.values(marks).reduce((sum, mark) => sum + (parseInt(mark) || 0), 0);
+        };
+
+        /** Initial demo data generation */
+        const generateDemoStudents = () => {
+            const names = ['Rahim Ahmed', 'Karim Hassan', 'Fatima Begum', 'Ayesha Khan', 'Habib Rahman'];
+            const demo = [];
+
+            for (let cls = 6; cls <= 10; cls++) {
+                const branches = ['A', 'B'];
+                branches.forEach(branch => {
+                    for (let i = 1; i <= 3; i++) {
+                        const roll = i;
+                        const student = {
+                            id: generateId(cls, branch, roll),
+                            name: `${names[i % names.length]} ${cls}${branch}`,
+                            roll: roll,
+                            class: cls.toString(),
+                            branch: branch,
+                            department: cls >= 9 ? departments[i % departments.length] : '',
+                            marks: {}
+                        };
+
+                        const subjectKey = cls >= 9 ? `${cls}-${student.department}` : cls.toString();
+                        subjects[subjectKey]?.forEach(subject => {
+                            student.marks[subject] = Math.floor(Math.random() * 40) + 60;
+                        });
+
+                        demo.push(student);
+                    }
+                });
+            }
+            return demo;
+        };
+
+        /** Loads data from localStorage or generates demo data */
+        const initializeData = () => {
+            const stored = localStorage.getItem('students');
+            if (stored) {
+                try {
+                    students = JSON.parse(stored);
+                } catch (e) {
+                    console.error("Error parsing stored data. Using demo.");
+                    students = generateDemoStudents();
+                    saveStudents(students);
+                }
+            } else {
+                students = generateDemoStudents();
+                saveStudents(students);
+            }
+            document.getElementById('loading').style.display = 'none';
+            setPage(currentPage);
+        };
+
+        /** Saves students data to localStorage and updates UI */
+        const saveStudents = (updatedStudents) => {
+            students = updatedStudents;
+            localStorage.setItem('students', JSON.stringify(students));
+            renderHomeStudents();
+            if (currentPage === 'admin' && isAdmin) {
+                renderMarkEntryTable();
+            }
+        };
+
+        // --- Navigation and Page Rendering ---
+
+        /** Sets the active page and updates URL hash */
+        const setPage = (pageName) => {
+            currentPage = pageName;
+            const pages = ['home', 'login', 'admin'];
+            pages.forEach(id => {
+                const pageEl = document.getElementById(`${id}-page`);
+                if (pageEl) {
+                    pageEl.classList.remove('active-page');
+                    pageEl.classList.add('page');
+                    if (id === pageName) {
+                        pageEl.classList.add('active-page');
+                        pageEl.classList.remove('page');
+                    }
+                }
+            });
+
+            if (pageName === 'home') {
+                renderHomeStudents();
+            } else if (pageName === 'admin' && isAdmin) {
+                renderAdminControls();
+            }
+        };
+
+        /** Renders student cards on the home page */
+        const renderHomeStudents = () => {
+            const listEl = document.getElementById('all-students-list');
+            if (!listEl) return;
+            listEl.innerHTML = students.slice(0, 20).map(student => `
+                <div onclick="showStudentModal('${student.id}')"
+                    class="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-lg cursor-pointer transition">
+                    <h3 class="font-bold text-lg text-blue-900">${student.name}</h3>
+                    <p class="text-gray-600">Roll: ${student.roll}</p>
+                    <p class="text-gray-600">Class: ${student.class} | Branch: ${student.branch}</p>
+                    ${student.department ? `<p class="text-gray-600 text-sm">${student.department}</p>` : ''}
+                </div>
+            `).join('');
+        };
+
+        /** Renders Admin page controls and sets initial subject/class */
+        const renderAdminControls = () => {
+            renderAdminClassSelection();
+            renderAdminSubjectSelection();
+        };
+
+        // --- Home Page Handlers ---
+
+        /** Handles student result search */
+        const handleSearch = () => {
+            const name = document.getElementById('search-name').value.toLowerCase();
+            const roll = document.getElementById('search-roll').value;
+            const cls = document.getElementById('search-class').value;
+            const branch = document.getElementById('search-branch').value;
+
+            const result = students.find(s =>
+                (name && s.name.toLowerCase().includes(name)) ||
+                (roll && s.roll.toString() === roll) ||
+                (cls && branch && s.class === cls && s.branch === branch)
+            );
+
+            const displayEl = document.getElementById('search-result-display');
+            if (!displayEl) return;
+            displayEl.innerHTML = ''; // Clear previous
+
+            if (result) {
+                const departmentInfo = result.department ? `<strong>Department:</strong> ${result.department}` : '';
+                displayEl.innerHTML = `
+                    <div class="mt-6 p-4 bg-green-50 border-2 border-green-500 rounded-lg">
+                        <h3 class="text-xl font-bold text-green-800 mb-4">✅ Result Found!</h3>
+                        <div class="bg-white p-4 rounded-lg">
+                            <p><strong>Name:</strong> ${result.name}</p>
+                            <p><strong>Roll:</strong> ${result.roll}</p>
+                            <p><strong>Class:</strong> ${result.class} | <strong>Branch:</strong> ${result.branch}</p>
+                            ${departmentInfo}
+                            <div class="mt-4">
+                                <button onclick="showStudentModal('${result.id}')" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 mr-2">
+                                    View Full Result
+                                </button>
+                                <button onclick="generatePDF('${result.id}')" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2 inline-flex">
+                                    ⬇️ Download PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (name || roll || cls || branch) {
+                displayEl.innerHTML = `
+                    <div class="mt-6 p-4 bg-red-50 border-2 border-red-500 rounded-lg">
+                        <h3 class="text-xl font-bold text-red-800">❌ No Result Found.</h3>
+                    </div>
+                `;
+            }
+        };
+
+        /** Opens the student detail modal */
+        const showStudentModal = (studentId) => {
+            selectedStudent = students.find(s => s.id === studentId);
+            if (!selectedStudent) return;
+
+            const infoEl = document.getElementById('modal-student-info');
+            const resultEl = document.getElementById('modal-result-tbody');
+            const downloadBtn = document.getElementById('modal-download-btn');
+
+            let departmentInfo = selectedStudent.department ? `<p><strong>Department:</strong> ${selectedStudent.department}</p>` : '';
+
+            infoEl.innerHTML = `
+                <p class="text-lg"><strong>Name:</strong> ${selectedStudent.name}</p>
+                <p><strong>Roll:</strong> ${selectedStudent.roll} | <strong>Class:</strong> ${selectedStudent.class} | <strong>Branch:</strong> ${selectedStudent.branch}</p>
+                ${departmentInfo}
+            `;
+
+            const subjectKey = selectedStudent.class >= '9' ? `${selectedStudent.class}-${selectedStudent.department}` : selectedStudent.class;
+            const studentSubjects = subjects[subjectKey] || [];
+            const total = calculateTotal(selectedStudent.marks);
+
+            resultEl.innerHTML = studentSubjects.map(subject => `
+                <tr class="hover:bg-gray-50">
+                    <td class="border border-gray-300 p-3">${subject}</td>
+                    <td class="border border-gray-300 p-3 text-center font-semibold">${selectedStudent.marks[subject] || 0}</td>
+                </tr>
+            `).join('');
+
+            resultEl.innerHTML += `
+                <tr class="bg-green-100 font-bold">
+                    <td class="border border-gray-300 p-3">TOTAL</td>
+                    <td class="border border-gray-300 p-3 text-center">${total}</td>
+                </tr>
+            `;
+            
+            downloadBtn.onclick = () => generatePDF(selectedStudent.id);
+
+            document.getElementById('student-detail-modal').style.display = 'flex';
+        };
+
+        /** Closes the student detail modal */
+        const closeModal = () => {
+            document.getElementById('student-detail-modal').style.display = 'none';
+            selectedStudent = null;
+        };
+
+        // --- Admin Handlers (Login/Logout) ---
+
+        /** Handles Admin Login */
+        const handleLogin = () => {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            if (username === 'admin' && password === 'admin') {
+                isAdmin = true;
+                setPage('admin');
+                document.getElementById('login-username').value = '';
+                document.getElementById('login-password').value = '';
+            } else {
+                alert('Invalid credentials! (Demo: admin/admin)');
+            }
+        };
+
+        /** Handles Admin Logout */
+        const handleLogout = () => {
+            isAdmin = false;
+            setPage('home');
+        };
+
+        // --- Admin Handlers (Add Student) ---
+
+        /** Updates the 'Add Student' form based on selected class (show/hide department) */
+        const updateNewStudentForm = (cls) => {
+            const deptEl = document.getElementById('new-student-department');
+            if (cls === '9' || cls === '10') {
+                deptEl.classList.remove('hidden');
+            } else {
+                deptEl.classList.add('hidden');
+                deptEl.value = '';
+            }
+        };
+
+        /** Adds a new student to the state and storage */
+        const handleAddStudent = () => {
+            const name = document.getElementById('new-student-name').value;
+            const roll = document.getElementById('new-student-roll').value;
+            const cls = document.getElementById('new-student-class').value;
+            const branch = document.getElementById('new-student-branch').value;
+            const department = document.getElementById('new-student-department').value;
+
+            if (!name || !roll) {
+                alert('Please fill all required fields!');
+                return;
+            }
+
+            if ((cls === '9' || cls === '10') && !department) {
+                alert('Please select department for Class 9/10!');
+                return;
+            }
+
+            const newStudent = {
+                id: generateId(cls, branch, roll),
+                name: name,
+                roll: parseInt(roll),
+                class: cls,
+                branch: branch,
+                department: department,
+                marks: {}
+            };
+
+            // Initialize marks to 0
+            const subjectKey = cls >= '9' ? `${cls}-${department}` : cls;
+            subjects[subjectKey]?.forEach(subject => {
+                newStudent.marks[subject] = 0;
+            });
+
+            if (students.some(s => s.id === newStudent.id)) {
+                alert('A student with this Roll/Class/Branch/Dept already exists!');
+                return;
+            }
+
+            const updated = [...students, newStudent];
+            saveStudents(updated);
+            alert('Student added successfully!');
+
+            // Reset form
+            document.getElementById('new-student-name').value = '';
+            document.getElementById('new-student-roll').value = '';
+        };
+
+        // --- Admin Handlers (Mark Entry) ---
+
+        /** Renders class selection buttons for Mark Entry */
+        const renderAdminClassSelection = () => {
+            const classes = ['6', '7', '8', '9', '10'];
+            const container = document.getElementById('admin-class-selection');
+            container.innerHTML = classes.map(cls => `
+                <button
+                    onclick="setSelectedClass('${cls}')"
+                    class="px-6 py-3 rounded-lg transition ${
+                        selectedClass === cls
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }"
+                >
+                    Class ${cls}
+                </button>
+            `).join('');
+            renderAdminSubjectSelection();
+        };
+
+        /** Updates the selected class and triggers UI update */
+        const setSelectedClass = (cls) => {
+            selectedClass = cls;
+            selectedSubject = ''; // Reset subject when class changes
+            renderAdminClassSelection();
+            renderAdminSubjectSelection();
+            document.getElementById('mark-entry-table-container').classList.add('hidden');
+        };
+
+        /** Renders subject selection buttons for Mark Entry */
+        const renderAdminSubjectSelection = () => {
+            const container = document.getElementById('admin-subject-selection');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            let subjectButtons = [];
+            
+            if (selectedClass === '9' || selectedClass === '10') {
+                departments.forEach(dept => {
+                    const deptSubjects = subjects[`${selectedClass}-${dept}`] || [];
+                    deptSubjects.forEach(subject => {
+                        const subjectKey = `${dept}-${subject}`;
+                        subjectButtons.push(`
+                            <button
+                                onclick="setSelectedSubject('${subjectKey}')"
+                                class="px-4 py-3 rounded-lg transition flex items-center gap-2 ${
+                                    selectedSubject === subjectKey
+                                    ? 'bg-green-600 text-white'
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                }"
+                            >
+                                📚 ${subject} (${dept})
+                            </button>
+                        `);
+                    });
+                });
+            } else {
+                (subjects[selectedClass] || []).forEach(subject => {
+                    subjectButtons.push(`
+                        <button
+                            onclick="setSelectedSubject('${subject}')"
+                            class="px-4 py-3 rounded-lg transition flex items-center gap-2 ${
+                                selectedSubject === subject
+                                ? 'bg-green-600 text-white'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }"
+                        >
+                            📚 ${subject}
+                        </button>
+                    `);
+                });
+            }
+
+            container.innerHTML = subjectButtons.join('');
+        };
+
+        /** Updates the selected subject and triggers table render */
+        const setSelectedSubject = (subject) => {
+            selectedSubject = subject;
+            renderAdminSubjectSelection();
+            renderMarkEntryTable();
+        };
+
+        /** Filters students by the current selected class/subject and renders the mark entry table */
+        const renderMarkEntryTable = () => {
+            const container = document.getElementById('mark-entry-table-container');
+            const tbody = document.getElementById('mark-entry-tbody');
+            const header = document.getElementById('mark-entry-header');
+            const deptHeader = document.getElementById('mark-entry-dept-header');
+
+            if (!selectedSubject || !container || !tbody || !header || !deptHeader) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            let studentsToMark;
+            let currentSubjectName;
+            let currentDepartment = '';
+
+            if (selectedSubject.includes('-')) {
+                [currentDepartment, currentSubjectName] = selectedSubject.split('-');
+                header.textContent = `📊 Enter Marks for: ${currentSubjectName} (${currentDepartment})`;
+                deptHeader.classList.remove('hidden');
+
+                studentsToMark = students.filter(s =>
+                    s.class === selectedClass &&
+                    s.department === currentDepartment &&
+                    s.marks.hasOwnProperty(currentSubjectName)
+                );
+            } else {
+                currentSubjectName = selectedSubject;
+                header.textContent = `📊 Enter Marks for: ${currentSubjectName}`;
+                deptHeader.classList.add('hidden');
+
+                studentsToMark = students.filter(s =>
+                    s.class === selectedClass &&
+                    s.marks.hasOwnProperty(currentSubjectName) &&
+                    (s.class < '9' || s.department === '')
+                );
+            }
+
+            tbody.innerHTML = studentsToMark.map(student => `
+                <tr class="hover:bg-gray-50">
+                    <td class="border border-gray-300 p-3">${student.name}</td>
+                    <td class="border border-gray-300 p-3 text-center">${student.roll}</td>
+                    <td class="border border-gray-300 p-3 text-center">${student.branch}</td>
+                    ${selectedSubject.includes('-') ? `<td class="border border-gray-300 p-3 text-center">${student.department}</td>` : ''}
+                    <td class="border border-gray-300 p-3">
+                        <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value="${student.marks[currentSubjectName] || 0}"
+                            onchange="handleMarkUpdate('${student.id}', '${currentSubjectName}', this.value)"
+                            class="w-full border-2 border-gray-300 rounded px-3 py-2 text-center focus:border-blue-500 focus:outline-none"
+                        />
+                    </td>
+                </tr>
+            `).join('');
+
+            container.classList.remove('hidden');
+        };
+
+        /** Updates a single mark for a student */
+        const handleMarkUpdate = (studentId, subject, mark) => {
+            const updated = students.map(s => {
+                if (s.id === studentId) {
+                    return { ...s, marks: { ...s.marks, [subject]: parseInt(mark) || 0 } };
+                }
+                return s;
+            });
+            saveStudents(updated);
+        };
+
+        // --- PDF Generation (using an invisible iframe/blob for "Download") ---
+
+        /** Generates the HTML content for the result sheet */
+        const getPDFContent = (student) => {
+            const subjectKey = student.class >= '9' ? `${student.class}-${student.department}` : student.class;
+            const studentSubjects = subjects[subjectKey] || [];
+            const total = calculateTotal(student.marks);
+
+            return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                <meta charset="UTF-8">
+                <style>
+                @page { size: A4 landscape; margin: 20mm; }
+                body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+                .header { text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 15px; margin-bottom: 20px; }
+                .header h1 { color: #1e40af; margin: 5px 0; font-size: 28px; }
+                .header h2 { color: #4b5563; margin: 5px 0; font-size: 18px; }
+                .info { display: flex; justify-content: space-between; margin: 20px 0; padding: 15px; background: #f3f4f6; border-radius: 8px; }
+                .info-item { margin: 5px 0; }
+                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                th, td { border: 2px solid #2563eb; padding: 12px; text-align: center; }
+                th { background: #2563eb; color: white; font-size: 16px; }
+                tr:nth-child(even) { background: #eff6ff; }
+                .total { font-weight: bold; background: #dbeafe !important; font-size: 18px; }
+                .footer { margin-top: 30px; text-align: center; color: #6b7280; }
+                </style>
+                </head>
+                <body>
+                <div class="header">
+                <h1>🎓 Dumuria Government Technical School & College</h1>
+                <h2>Academic Result Sheet</h2>
+                </div>
+
+                <div class="info">
+                <div>
+                <div class="info-item"><strong>Student Name:</strong> ${student.name}</div>
+                <div class="info-item"><strong>Roll Number:</strong> ${student.roll}</div>
+                </div>
+                <div>
+                <div class="info-item"><strong>Class:</strong> ${student.class}</div>
+                <div class="info-item"><strong>Branch:</strong> ${student.branch}</div>
+                ${student.department ? `<div class="info-item"><strong>Department:</strong> ${student.department}</div>` : ''}
+                </div>
+                </div>
+
+                <table>
+                <thead>
+                <tr>
+                <th>Subject</th>
+                <th>Marks Obtained</th>
+                <th>Total Marks</th>
+                </tr>
+                </thead>
+                <tbody>
+                ${studentSubjects.map(subject => `
+                <tr>
+                <td>${subject}</td>
+                <td>${student.marks[subject] || 0}</td>
+                <td>100</td>
+                </tr>
+                `).join('')}
+                <tr class="total">
+                <td>TOTAL</td>
+                <td>${total}</td>
+                <td>${studentSubjects.length * 100}</td>
+                </tr>
+                </tbody>
+                </table>
+
+                <div class="footer">
+                <p>Generated on ${new Date().toLocaleDateString()}</p>
+                <p>This is a computer-generated document</p>
+                </div>
+                </body>
+                </html>
+            `;
+        };
+
+        /** Initiates the PDF download (creates a downloadable HTML file with PDF styles) */
+        const generatePDF = (studentId) => {
+            const student = students.find(s => s.id === studentId);
+            if (!student) {
+                alert("Student not found!");
+                return;
+            }
+
+            const pdfContent = getPDFContent(student);
+
+            // Create a blob and a temporary link to trigger download
+            const blob = new Blob([pdfContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Result_${student.name}_${student.class}${student.branch}.html`; // Download as HTML, browser can print to PDF
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', initializeData);
+
+    </script>
+</body>
+</html>
