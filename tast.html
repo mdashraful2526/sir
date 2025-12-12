@@ -191,6 +191,18 @@
             transform: scale(1.05);
         }
         
+        .subject-group {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .subject-group h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
         .mark-input {
             width: 100px;
             padding: 8px;
@@ -320,13 +332,7 @@
             
             <div id="subjectsSection">
                 <h3>📚 Select Subject to Add Marks:</h3>
-                <div class="subjects-grid">
-                    <button class="subject-btn" onclick="selectSubject('bangla')">📖 Bangla</button>
-                    <button class="subject-btn" onclick="selectSubject('english')">📘 English</button>
-                    <button class="subject-btn" onclick="selectSubject('math')">🔢 Math</button>
-                    <button class="subject-btn" onclick="selectSubject('science')">🔬 Science</button>
-                    <button class="subject-btn" onclick="selectSubject('social')">🌍 Social Science</button>
-                </div>
+                <div id="subjectsContainer"></div>
             </div>
             
             <div id="marksSection" style="display: none;"></div>
@@ -384,12 +390,29 @@
         let currentSubject = '';
         let allStudents = [];
 
+        // Subject configuration for different classes
+        const subjectsByClass = {
+            '6': ['bangla', 'english', 'math', 'science', 'social'],
+            '7': ['bangla', 'english', 'math', 'science', 'social'],
+            '8': ['bangla', 'english', 'math', 'science', 'social'],
+            '9': ['bangla', 'english', 'math', 'science', 'social', 'civil_theory1', 'civil_theory2', 'computer_theory1', 'computer_theory2', 'electrical_theory1', 'electrical_theory2', 'mechanical_theory1', 'mechanical_theory2'],
+            '10': ['bangla', 'english', 'math', 'science', 'social', 'civil_theory1', 'civil_theory2', 'computer_theory1', 'computer_theory2', 'electrical_theory1', 'electrical_theory2', 'mechanical_theory1', 'mechanical_theory2']
+        };
+
         const subjectNames = {
             bangla: 'Bangla',
             english: 'English',
             math: 'Math',
             science: 'Science',
-            social: 'Social Science'
+            social: 'Social Science',
+            civil_theory1: 'Civil Theory 1',
+            civil_theory2: 'Civil Theory 2',
+            computer_theory1: 'Computer Theory 1',
+            computer_theory2: 'Computer Theory 2',
+            electrical_theory1: 'Electrical Theory 1',
+            electrical_theory2: 'Electrical Theory 2',
+            mechanical_theory1: 'Mechanical Theory 1',
+            mechanical_theory2: 'Mechanical Theory 2'
         };
 
         // Initialize demo data
@@ -405,7 +428,10 @@
                     {name: "Nazma Begum", roll: 1, class: "7", branch: "A", marks: {bangla: 87, english: 89, math: 85, science: 90, social: 82}},
                     {name: "Jamal Uddin", roll: 2, class: "7", branch: "B", marks: {bangla: 92, english: 88, math: 94, science: 91, social: 87}},
                     {name: "Fatema Akter", roll: 4, class: "6", branch: "A", marks: {bangla: 78, english: 80, math: 85, science: 82, social: 79}},
-                    {name: "Sabbir Rahman", roll: 5, class: "6", branch: "B", marks: {bangla: 91, english: 87, math: 89, science: 93, social: 88}}
+                    {name: "Sabbir Rahman", roll: 5, class: "6", branch: "B", marks: {bangla: 91, english: 87, math: 89, science: 93, social: 88}},
+                    {name: "Rashed Khan", roll: 1, class: "9", branch: "A", marks: {bangla: 85, english: 80, math: 90, science: 88, social: 82, civil_theory1: 75, civil_theory2: 78}},
+                    {name: "Sultana Razia", roll: 2, class: "9", branch: "A", marks: {bangla: 88, english: 85, math: 92, science: 90, social: 86, computer_theory1: 90, computer_theory2: 88}},
+                    {name: "Shakib Hasan", roll: 1, class: "10", branch: "A", marks: {bangla: 90, english: 88, math: 95, science: 92, social: 85, electrical_theory1: 87, electrical_theory2: 89}}
                 ];
                 
                 for (const student of demoStudents) {
@@ -441,20 +467,25 @@
 
         window.showResult = function(student) {
             const marks = student.marks || {};
-            const total = Object.values(marks).reduce((a, b) => a + b, 0);
+            const studentSubjects = subjectsByClass[student.class] || subjectsByClass['6'];
+            
+            let total = 0;
+            let subjectsHtml = '';
+            
+            studentSubjects.forEach(subject => {
+                const mark = marks[subject] || 0;
+                total += mark;
+                subjectsHtml += `<div class="subject-row"><span>${subjectNames[subject]}</span><span>${mark}</span></div>`;
+            });
             
             document.getElementById('resultSection').innerHTML = `
                 <div class="result-card">
                     <h2>📊 ${student.name}'s Result</h2>
-                    <p>Roll: ${student.roll} | Class: ${student.class} | Branch: ${student.branch}</p>
+                    <p><strong>Roll:</strong> ${student.roll} | <strong>Class:</strong> ${student.class} | <strong>Branch:</strong> ${student.branch}</p>
                     <hr style="margin: 20px 0;">
                     <div class="subject-row"><strong>Subject</strong><strong>Marks</strong></div>
-                    <div class="subject-row"><span>Bangla</span><span>${marks.bangla || 0}</span></div>
-                    <div class="subject-row"><span>English</span><span>${marks.english || 0}</span></div>
-                    <div class="subject-row"><span>Math</span><span>${marks.math || 0}</span></div>
-                    <div class="subject-row"><span>Science</span><span>${marks.science || 0}</span></div>
-                    <div class="subject-row"><span>Social Science</span><span>${marks.social || 0}</span></div>
-                    <div class="total-marks">Total Marks: ${total}/500</div>
+                    ${subjectsHtml}
+                    <div class="total-marks">Total Marks: ${total}/${studentSubjects.length * 100}</div>
                 </div>
             `;
         };
@@ -474,6 +505,7 @@
 
             if (results.length > 0) {
                 showResult(results[0]);
+                document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
             } else {
                 alert('No student found!');
             }
@@ -512,7 +544,72 @@
             event.target.classList.add('active');
             document.getElementById('subjectsSection').style.display = 'block';
             document.getElementById('marksSection').style.display = 'none';
+            loadSubjectsForClass();
         };
+
+        function loadSubjectsForClass() {
+            const subjects = subjectsByClass[currentClass.toString()];
+            const container = document.getElementById('subjectsContainer');
+            
+            if (currentClass <= 8) {
+                // For class 6-8: show basic subjects
+                container.innerHTML = `
+                    <div class="subjects-grid">
+                        <button class="subject-btn" onclick="selectSubject('bangla')">📖 Bangla</button>
+                        <button class="subject-btn" onclick="selectSubject('english')">📘 English</button>
+                        <button class="subject-btn" onclick="selectSubject('math')">🔢 Math</button>
+                        <button class="subject-btn" onclick="selectSubject('science')">🔬 Science</button>
+                        <button class="subject-btn" onclick="selectSubject('social')">🌍 Social Science</button>
+                    </div>
+                `;
+            } else {
+                // For class 9-10: show basic + trade subjects
+                container.innerHTML = `
+                    <div class="subject-group">
+                        <h4>📚 Basic Subjects</h4>
+                        <div class="subjects-grid">
+                            <button class="subject-btn" onclick="selectSubject('bangla')">📖 Bangla</button>
+                            <button class="subject-btn" onclick="selectSubject('english')">📘 English</button>
+                            <button class="subject-btn" onclick="selectSubject('math')">🔢 Math</button>
+                            <button class="subject-btn" onclick="selectSubject('science')">🔬 Science</button>
+                            <button class="subject-btn" onclick="selectSubject('social')">🌍 Social Science</button>
+                        </div>
+                    </div>
+                    
+                    <div class="subject-group">
+                        <h4>🏗️ Civil Trade</h4>
+                        <div class="subjects-grid">
+                            <button class="subject-btn" onclick="selectSubject('civil_theory1')">📐 Civil Theory 1</button>
+                            <button class="subject-btn" onclick="selectSubject('civil_theory2')">📐 Civil Theory 2</button>
+                        </div>
+                    </div>
+                    
+                    <div class="subject-group">
+                        <h4>💻 Computer Trade</h4>
+                        <div class="subjects-grid">
+                            <button class="subject-btn" onclick="selectSubject('computer_theory1')">💾 Computer Theory 1</button>
+                            <button class="subject-btn" onclick="selectSubject('computer_theory2')">💾 Computer Theory 2</button>
+                        </div>
+                    </div>
+                    
+                    <div class="subject-group">
+                        <h4>⚡ Electrical Trade</h4>
+                        <div class="subjects-grid">
+                            <button class="subject-btn" onclick="selectSubject('electrical_theory1')">🔌 Electrical Theory 1</button>
+                            <button class="subject-btn" onclick="selectSubject('electrical_theory2')">🔌 Electrical Theory 2</button>
+                        </div>
+                    </div>
+                    
+                    <div class="subject-group">
+                        <h4>⚙️ Mechanical Trade</h4>
+                        <div class="subjects-grid">
+                            <button class="subject-btn" onclick="selectSubject('mechanical_theory1')">🔧 Mechanical Theory 1</button>
+                            <button class="subject-btn" onclick="selectSubject('mechanical_theory2')">🔧 Mechanical Theory 2</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
 
         window.selectSubject = function(subject) {
             currentSubject = subject;
@@ -607,10 +704,13 @@
                 return;
             }
             
+            const subjects = subjectsByClass[cls];
+            const marks = {};
+            subjects.forEach(subject => marks[subject] = 0);
+            
             const studentsRef = collection(db, 'students');
             await addDoc(studentsRef, {
-                name, roll, class: cls, branch,
-                marks: {bangla: 0, english: 0, math: 0, science: 0, social: 0}
+                name, roll, class: cls, branch, marks
             });
             
             alert('Student added successfully!');
