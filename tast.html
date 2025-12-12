@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>স্কুল রেজাল্ট সিস্টেম</title>
+    <title>School Result System</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'SolaimanLipi', Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
@@ -133,7 +133,7 @@
         .modal-content {
             background: white;
             width: 90%;
-            max-width: 800px;
+            max-width: 900px;
             margin: 50px auto;
             padding: 30px;
             border-radius: 15px;
@@ -161,6 +161,7 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            font-size: 16px;
         }
         
         .tab.active {
@@ -168,11 +169,34 @@
             color: white;
         }
         
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .subject-btn {
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.3s;
+        }
+        
+        .subject-btn:hover {
+            transform: scale(1.05);
+        }
+        
         .mark-input {
             width: 100px;
             padding: 8px;
             border: 2px solid #ddd;
             border-radius: 5px;
+            text-align: center;
         }
         
         .save-btn {
@@ -183,6 +207,7 @@
             border-radius: 8px;
             cursor: pointer;
             margin-top: 20px;
+            font-size: 16px;
         }
         
         .add-student-btn {
@@ -204,55 +229,76 @@
             background: #f0f0f0;
             border-radius: 8px;
         }
+        
+        .student-mark-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
-    <button class="admin-btn" onclick="showAdminLogin()">🔐 এডমিন</button>
+    <button class="admin-btn" onclick="showAdminLogin()">🔐 Admin</button>
     
     <div class="container">
         <div class="header">
-            <h1>🎓 স্কুল রেজাল্ট ম্যানেজমেন্ট সিস্টেম</h1>
-            <p>ক্লাস ৬ থেকে ১০</p>
+            <h1>🎓 School Result Management System</h1>
+            <p>Class 6 to 10</p>
         </div>
         
         <div class="search-section">
-            <h2>🔍 রেজাল্ট খুঁজুন</h2>
+            <h2>🔍 Search Results</h2>
             <div class="search-box">
-                <input type="text" id="searchName" placeholder="শিক্ষার্থীর নাম">
-                <input type="number" id="searchRoll" placeholder="রোল নাম্বার">
+                <input type="text" id="searchName" placeholder="Student Name">
+                <input type="number" id="searchRoll" placeholder="Roll Number">
                 <select id="searchClass">
-                    <option value="">ক্লাস নির্বাচন করুন</option>
-                    <option value="6">ক্লাস ৬</option>
-                    <option value="7">ক্লাস ৭</option>
-                    <option value="8">ক্লাস ৮</option>
-                    <option value="9">ক্লাস ৯</option>
-                    <option value="10">ক্লাস ১০</option>
+                    <option value="">Select Class</option>
+                    <option value="6">Class 6</option>
+                    <option value="7">Class 7</option>
+                    <option value="8">Class 8</option>
+                    <option value="9">Class 9</option>
+                    <option value="10">Class 10</option>
                 </select>
                 <select id="searchBranch">
-                    <option value="">শাখা নির্বাচন করুন</option>
-                    <option value="A">শাখা A</option>
-                    <option value="B">শাখা B</option>
+                    <option value="">Select Branch</option>
+                    <option value="A">Branch A</option>
+                    <option value="B">Branch B</option>
                 </select>
             </div>
-            <button class="search-btn" onclick="searchStudent()">সার্চ করুন</button>
+            <button class="search-btn" onclick="searchStudent()">Search</button>
         </div>
         
         <div class="students-list">
-            <h2>📋 সকল শিক্ষার্থী</h2>
+            <h2>📋 All Students</h2>
             <div id="studentsList"></div>
         </div>
         
         <div id="resultSection"></div>
     </div>
     
-    <!-- Admin Modal -->
+    <!-- Admin Login Modal -->
     <div id="adminModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeAdminModal()">&times;</span>
-            <h2>🔐 এডমিন লগইন</h2>
-            <input type="text" id="adminUser" placeholder="ইউজারনেম" style="width: 100%; margin: 10px 0;">
-            <input type="password" id="adminPass" placeholder="পাসওয়ার্ড" style="width: 100%; margin: 10px 0;">
-            <button class="search-btn" onclick="adminLogin()">লগইন</button>
+            <h2>🔐 Admin Login</h2>
+            <input type="text" id="adminUser" placeholder="Username" style="width: 100%; margin: 10px 0;">
+            <input type="password" id="adminPass" placeholder="Password" style="width: 100%; margin: 10px 0;">
+            <button class="search-btn" onclick="adminLogin()">Login</button>
         </div>
     </div>
     
@@ -260,19 +306,30 @@
     <div id="adminPanel" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeAdminPanel()">&times;</span>
-            <h2>👨‍🏫 এডমিন প্যানেল</h2>
+            <h2>👨‍🏫 Admin Panel</h2>
             
             <div class="class-tabs">
-                <button class="tab active" onclick="selectClass(6)">ক্লাস ৬</button>
-                <button class="tab" onclick="selectClass(7)">ক্লাস ৭</button>
-                <button class="tab" onclick="selectClass(8)">ক্লাস ৮</button>
-                <button class="tab" onclick="selectClass(9)">ক্লাস ৯</button>
-                <button class="tab" onclick="selectClass(10)">ক্লাস ১০</button>
+                <button class="tab active" onclick="selectClass(6)">Class 6</button>
+                <button class="tab" onclick="selectClass(7)">Class 7</button>
+                <button class="tab" onclick="selectClass(8)">Class 8</button>
+                <button class="tab" onclick="selectClass(9)">Class 9</button>
+                <button class="tab" onclick="selectClass(10)">Class 10</button>
             </div>
             
-            <button class="add-student-btn" onclick="showAddStudent()">➕ নতুন শিক্ষার্থী যোগ করুন</button>
+            <button class="add-student-btn" onclick="showAddStudent()">➕ Add New Student</button>
             
-            <div id="adminStudentsList"></div>
+            <div id="subjectsSection">
+                <h3>📚 Select Subject to Add Marks:</h3>
+                <div class="subjects-grid">
+                    <button class="subject-btn" onclick="selectSubject('bangla')">📖 Bangla</button>
+                    <button class="subject-btn" onclick="selectSubject('english')">📘 English</button>
+                    <button class="subject-btn" onclick="selectSubject('math')">🔢 Math</button>
+                    <button class="subject-btn" onclick="selectSubject('science')">🔬 Science</button>
+                    <button class="subject-btn" onclick="selectSubject('social')">🌍 Social Science</button>
+                </div>
+            </div>
+            
+            <div id="marksSection" style="display: none;"></div>
         </div>
     </div>
     
@@ -280,21 +337,21 @@
     <div id="addStudentModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeAddStudent()">&times;</span>
-            <h2>➕ নতুন শিক্ষার্থী যোগ করুন</h2>
-            <input type="text" id="newName" placeholder="নাম" style="width: 100%; margin: 10px 0;">
-            <input type="number" id="newRoll" placeholder="রোল" style="width: 100%; margin: 10px 0;">
+            <h2>➕ Add New Student</h2>
+            <input type="text" id="newName" placeholder="Name" style="width: 100%; margin: 10px 0;">
+            <input type="number" id="newRoll" placeholder="Roll" style="width: 100%; margin: 10px 0;">
             <select id="newClass" style="width: 100%; margin: 10px 0;">
-                <option value="6">ক্লাস ৬</option>
-                <option value="7">ক্লাস ৭</option>
-                <option value="8">ক্লাস ৮</option>
-                <option value="9">ক্লাস ৯</option>
-                <option value="10">ক্লাস ১০</option>
+                <option value="6">Class 6</option>
+                <option value="7">Class 7</option>
+                <option value="8">Class 8</option>
+                <option value="9">Class 9</option>
+                <option value="10">Class 10</option>
             </select>
             <select id="newBranch" style="width: 100%; margin: 10px 0;">
-                <option value="A">শাখা A</option>
-                <option value="B">শাখা B</option>
+                <option value="A">Branch A</option>
+                <option value="B">Branch B</option>
             </select>
-            <button class="search-btn" onclick="addStudent()">শিক্ষার্থী যোগ করুন</button>
+            <button class="search-btn" onclick="addStudent()">Add Student</button>
         </div>
     </div>
 
@@ -324,7 +381,16 @@
         window.doc = doc;
 
         let currentClass = 6;
+        let currentSubject = '';
         let allStudents = [];
+
+        const subjectNames = {
+            bangla: 'Bangla',
+            english: 'English',
+            math: 'Math',
+            science: 'Science',
+            social: 'Social Science'
+        };
 
         // Initialize demo data
         async function initDemoData() {
@@ -333,11 +399,13 @@
             
             if (snapshot.empty) {
                 const demoStudents = [
-                    {name: "রহিম আহমেদ", roll: 1, class: "6", branch: "A", marks: {bangla: 85, english: 78, math: 92, science: 88, social: 76}},
-                    {name: "করিম হোসেন", roll: 2, class: "6", branch: "A", marks: {bangla: 90, english: 85, math: 88, science: 92, social: 84}},
-                    {name: "সালমা খাতুন", roll: 3, class: "6", branch: "B", marks: {bangla: 88, english: 82, math: 90, science: 86, social: 80}},
-                    {name: "নাজমা বেগম", roll: 1, class: "7", branch: "A", marks: {bangla: 87, english: 89, math: 85, science: 90, social: 82}},
-                    {name: "জামাল উদ্দিন", roll: 2, class: "7", branch: "B", marks: {bangla: 92, english: 88, math: 94, science: 91, social: 87}}
+                    {name: "Rahim Ahmed", roll: 1, class: "6", branch: "A", marks: {bangla: 85, english: 78, math: 92, science: 88, social: 76}},
+                    {name: "Karim Hossain", roll: 2, class: "6", branch: "A", marks: {bangla: 90, english: 85, math: 88, science: 92, social: 84}},
+                    {name: "Salma Khatun", roll: 3, class: "6", branch: "B", marks: {bangla: 88, english: 82, math: 90, science: 86, social: 80}},
+                    {name: "Nazma Begum", roll: 1, class: "7", branch: "A", marks: {bangla: 87, english: 89, math: 85, science: 90, social: 82}},
+                    {name: "Jamal Uddin", roll: 2, class: "7", branch: "B", marks: {bangla: 92, english: 88, math: 94, science: 91, social: 87}},
+                    {name: "Fatema Akter", roll: 4, class: "6", branch: "A", marks: {bangla: 78, english: 80, math: 85, science: 82, social: 79}},
+                    {name: "Sabbir Rahman", roll: 5, class: "6", branch: "B", marks: {bangla: 91, english: 87, math: 89, science: 93, social: 88}}
                 ];
                 
                 for (const student of demoStudents) {
@@ -365,7 +433,7 @@
                 card.onclick = () => showResult(student);
                 card.innerHTML = `
                     <h3>${student.name}</h3>
-                    <p>রোল: ${student.roll} | ক্লাস: ${student.class} | শাখা: ${student.branch}</p>
+                    <p>Roll: ${student.roll} | Class: ${student.class} | Branch: ${student.branch}</p>
                 `;
                 listDiv.appendChild(card);
             });
@@ -377,16 +445,16 @@
             
             document.getElementById('resultSection').innerHTML = `
                 <div class="result-card">
-                    <h2>📊 ${student.name} এর রেজাল্ট</h2>
-                    <p>রোল: ${student.roll} | ক্লাস: ${student.class} | শাখা: ${student.branch}</p>
+                    <h2>📊 ${student.name}'s Result</h2>
+                    <p>Roll: ${student.roll} | Class: ${student.class} | Branch: ${student.branch}</p>
                     <hr style="margin: 20px 0;">
-                    <div class="subject-row"><strong>বিষয়</strong><strong>নম্বর</strong></div>
-                    <div class="subject-row"><span>বাংলা</span><span>${marks.bangla || 0}</span></div>
-                    <div class="subject-row"><span>ইংরেজি</span><span>${marks.english || 0}</span></div>
-                    <div class="subject-row"><span>গণিত</span><span>${marks.math || 0}</span></div>
-                    <div class="subject-row"><span>বিজ্ঞান</span><span>${marks.science || 0}</span></div>
-                    <div class="subject-row"><span>সামাজিক বিজ্ঞান</span><span>${marks.social || 0}</span></div>
-                    <div class="total-marks">মোট নম্বর: ${total}/৫০০</div>
+                    <div class="subject-row"><strong>Subject</strong><strong>Marks</strong></div>
+                    <div class="subject-row"><span>Bangla</span><span>${marks.bangla || 0}</span></div>
+                    <div class="subject-row"><span>English</span><span>${marks.english || 0}</span></div>
+                    <div class="subject-row"><span>Math</span><span>${marks.math || 0}</span></div>
+                    <div class="subject-row"><span>Science</span><span>${marks.science || 0}</span></div>
+                    <div class="subject-row"><span>Social Science</span><span>${marks.social || 0}</span></div>
+                    <div class="total-marks">Total Marks: ${total}/500</div>
                 </div>
             `;
         };
@@ -399,7 +467,7 @@
 
             let results = allStudents;
 
-            if (name) results = results.filter(s => s.name.includes(name));
+            if (name) results = results.filter(s => s.name.toLowerCase().includes(name.toLowerCase()));
             if (roll) results = results.filter(s => s.roll == roll);
             if (cls) results = results.filter(s => s.class == cls);
             if (branch) results = results.filter(s => s.branch == branch);
@@ -407,7 +475,7 @@
             if (results.length > 0) {
                 showResult(results[0]);
             } else {
-                alert('কোন শিক্ষার্থী পাওয়া যায়নি!');
+                alert('No student found!');
             }
         };
 
@@ -428,73 +496,96 @@
                 document.getElementById('adminPanel').style.display = 'block';
                 selectClass(6);
             } else {
-                alert('ভুল ইউজারনেম বা পাসওয়ার্ড!');
+                alert('Wrong username or password!');
             }
         };
 
         window.closeAdminPanel = function() {
             document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('subjectsSection').style.display = 'block';
+            document.getElementById('marksSection').style.display = 'none';
         };
 
         window.selectClass = function(cls) {
             currentClass = cls;
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
-            loadAdminStudents();
+            document.getElementById('subjectsSection').style.display = 'block';
+            document.getElementById('marksSection').style.display = 'none';
         };
 
-        async function loadAdminStudents() {
+        window.selectSubject = function(subject) {
+            currentSubject = subject;
+            document.getElementById('subjectsSection').style.display = 'none';
+            document.getElementById('marksSection').style.display = 'block';
+            loadSubjectMarks();
+        };
+
+        async function loadSubjectMarks() {
             const students = allStudents.filter(s => s.class == currentClass);
-            const listDiv = document.getElementById('adminStudentsList');
-            listDiv.innerHTML = '<h3>শিক্ষার্থীদের মার্ক দিন:</h3>';
+            const marksDiv = document.getElementById('marksSection');
+            
+            marksDiv.innerHTML = `
+                <button class="back-btn" onclick="backToSubjects()">⬅️ Back to Subjects</button>
+                <h3>📝 Enter ${subjectNames[currentSubject]} Marks for Class ${currentClass}</h3>
+                <p style="margin: 10px 0; color: #666;">Enter marks for all students below:</p>
+            `;
             
             students.forEach(student => {
                 const marks = student.marks || {};
                 const div = document.createElement('div');
-                div.style.marginBottom = '20px';
-                div.style.padding = '15px';
-                div.style.background = '#f5f5f5';
-                div.style.borderRadius = '8px';
+                div.className = 'student-mark-row';
                 div.innerHTML = `
-                    <h4>${student.name} (রোল: ${student.roll}, শাখা: ${student.branch})</h4>
-                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px;">
-                        <input type="number" class="mark-input" placeholder="বাংলা" value="${marks.bangla || ''}" data-id="${student.id}" data-subject="bangla">
-                        <input type="number" class="mark-input" placeholder="ইংরেজি" value="${marks.english || ''}" data-id="${student.id}" data-subject="english">
-                        <input type="number" class="mark-input" placeholder="গণিত" value="${marks.math || ''}" data-id="${student.id}" data-subject="math">
-                        <input type="number" class="mark-input" placeholder="বিজ্ঞান" value="${marks.science || ''}" data-id="${student.id}" data-subject="science">
-                        <input type="number" class="mark-input" placeholder="সামাজিক" value="${marks.social || ''}" data-id="${student.id}" data-subject="social">
+                    <div>
+                        <strong>${student.name}</strong>
+                        <p style="color: #666; font-size: 14px;">Roll: ${student.roll} | Branch: ${student.branch}</p>
                     </div>
+                    <input type="number" 
+                           class="mark-input" 
+                           placeholder="0-100" 
+                           value="${marks[currentSubject] || ''}" 
+                           data-id="${student.id}"
+                           min="0"
+                           max="100">
                 `;
-                listDiv.appendChild(div);
+                marksDiv.appendChild(div);
             });
             
             const saveBtn = document.createElement('button');
             saveBtn.className = 'save-btn';
-            saveBtn.textContent = '💾 সকল মার্ক সেভ করুন';
-            saveBtn.onclick = saveAllMarks;
-            listDiv.appendChild(saveBtn);
+            saveBtn.textContent = '💾 Save All Marks';
+            saveBtn.onclick = saveSubjectMarks;
+            marksDiv.appendChild(saveBtn);
         }
 
-        window.saveAllMarks = async function() {
-            const inputs = document.querySelectorAll('.mark-input');
-            const updates = {};
+        window.backToSubjects = function() {
+            document.getElementById('subjectsSection').style.display = 'block';
+            document.getElementById('marksSection').style.display = 'none';
+        };
+
+        window.saveSubjectMarks = async function() {
+            const inputs = document.querySelectorAll('#marksSection .mark-input');
             
-            inputs.forEach(input => {
+            for (const input of inputs) {
                 const id = input.dataset.id;
-                const subject = input.dataset.subject;
                 const value = parseInt(input.value) || 0;
                 
-                if (!updates[id]) updates[id] = {};
-                updates[id][subject] = value;
-            });
-            
-            for (const [id, marks] of Object.entries(updates)) {
+                if (value < 0 || value > 100) {
+                    alert('Marks must be between 0 and 100!');
+                    return;
+                }
+                
+                const student = allStudents.find(s => s.id === id);
+                const currentMarks = student.marks || {};
+                currentMarks[currentSubject] = value;
+                
                 const studentRef = doc(db, 'students', id);
-                await updateDoc(studentRef, { marks });
+                await updateDoc(studentRef, { marks: currentMarks });
             }
             
-            alert('সকল মার্ক সফলভাবে সেভ হয়েছে!');
+            alert(`${subjectNames[currentSubject]} marks saved successfully!`);
             await loadAllStudents();
+            backToSubjects();
         };
 
         window.showAddStudent = function() {
@@ -512,7 +603,7 @@
             const branch = document.getElementById('newBranch').value;
             
             if (!name || !roll) {
-                alert('সকল তথ্য পূরণ করুন!');
+                alert('Please fill all fields!');
                 return;
             }
             
@@ -522,10 +613,9 @@
                 marks: {bangla: 0, english: 0, math: 0, science: 0, social: 0}
             });
             
-            alert('শিক্ষার্থী সফলভাবে যোগ করা হয়েছে!');
+            alert('Student added successfully!');
             closeAddStudent();
             await loadAllStudents();
-            selectClass(currentClass);
         };
 
         // Initialize
