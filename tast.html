@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>স্কুল রেজাল্ট সিস্টেম</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'SolaimanLipi', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .admin-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #764ba2;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .search-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .search-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        input, select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .search-btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 100%;
+        }
+        
+        .students-list {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .student-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .student-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .result-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .subject-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 15px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .close-btn {
+            float: right;
+            font-size: 30px;
+            cursor: pointer;
+            color: #764ba2;
+        }
+        
+        .class-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: #ddd;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .mark-input {
+            width: 100px;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .save-btn {
+            background: #28a745;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .add-student-btn {
+            background: #17a2b8;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        
+        .total-marks {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <button class="admin-btn" onclick="showAdminLogin()">🔐 এডমিন</button>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🎓 স্কুল রেজাল্ট ম্যানেজমেন্ট সিস্টেম</h1>
+            <p>ক্লাস ৬ থেকে ১০</p>
+        </div>
+        
+        <div class="search-section">
+            <h2>🔍 রেজাল্ট খুঁজুন</h2>
+            <div class="search-box">
+                <input type="text" id="searchName" placeholder="শিক্ষার্থীর নাম">
+                <input type="number" id="searchRoll" placeholder="রোল নাম্বার">
+                <select id="searchClass">
+                    <option value="">ক্লাস নির্বাচন করুন</option>
+                    <option value="6">ক্লাস ৬</option>
+                    <option value="7">ক্লাস ৭</option>
+                    <option value="8">ক্লাস ৮</option>
+                    <option value="9">ক্লাস ৯</option>
+                    <option value="10">ক্লাস ১০</option>
+                </select>
+                <select id="searchBranch">
+                    <option value="">শাখা নির্বাচন করুন</option>
+                    <option value="A">শাখা A</option>
+                    <option value="B">শাখা B</option>
+                </select>
+            </div>
+            <button class="search-btn" onclick="searchStudent()">সার্চ করুন</button>
+        </div>
+        
+        <div class="students-list">
+            <h2>📋 সকল শিক্ষার্থী</h2>
+            <div id="studentsList"></div>
+        </div>
+        
+        <div id="resultSection"></div>
+    </div>
+    
+    <!-- Admin Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAdminModal()">&times;</span>
+            <h2>🔐 এডমিন লগইন</h2>
+            <input type="text" id="adminUser" placeholder="ইউজারনেম" style="width: 100%; margin: 10px 0;">
+            <input type="password" id="adminPass" placeholder="পাসওয়ার্ড" style="width: 100%; margin: 10px 0;">
+            <button class="search-btn" onclick="adminLogin()">লগইন</button>
+        </div>
+    </div>
+    
+    <!-- Admin Panel Modal -->
+    <div id="adminPanel" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAdminPanel()">&times;</span>
+            <h2>👨‍🏫 এডমিন প্যানেল</h2>
+            
+            <div class="class-tabs">
+                <button class="tab active" onclick="selectClass(6)">ক্লাস ৬</button>
+                <button class="tab" onclick="selectClass(7)">ক্লাস ৭</button>
+                <button class="tab" onclick="selectClass(8)">ক্লাস ৮</button>
+                <button class="tab" onclick="selectClass(9)">ক্লাস ৯</button>
+                <button class="tab" onclick="selectClass(10)">ক্লাস ১০</button>
+            </div>
+            
+            <button class="add-student-btn" onclick="showAddStudent()">➕ নতুন শিক্ষার্থী যোগ করুন</button>
+            
+            <div id="adminStudentsList"></div>
+        </div>
+    </div>
+    
+    <!-- Add Student Modal -->
+    <div id="addStudentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAddStudent()">&times;</span>
+            <h2>➕ নতুন শিক্ষার্থী যোগ করুন</h2>
+            <input type="text" id="newName" placeholder="নাম" style="width: 100%; margin: 10px 0;">
+            <input type="number" id="newRoll" placeholder="রোল" style="width: 100%; margin: 10px 0;">
+            <select id="newClass" style="width: 100%; margin: 10px 0;">
+                <option value="6">ক্লাস ৬</option>
+                <option value="7">ক্লাস ৭</option>
+                <option value="8">ক্লাস ৮</option>
+                <option value="9">ক্লাস ৯</option>
+                <option value="10">ক্লাস ১০</option>
+            </select>
+            <select id="newBranch" style="width: 100%; margin: 10px 0;">
+                <option value="A">শাখা A</option>
+                <option value="B">শাখা B</option>
+            </select>
+            <button class="search-btn" onclick="addStudent()">শিক্ষার্থী যোগ করুন</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCy9gJJsEfgoT1CLAtaNiaykrrPSTC9q1g",
+            authDomain: "sctop-d22bc.firebaseapp.com",
+            projectId: "sctop-d22bc",
+            storageBucket: "sctop-d22bc.firebasestorage.app",
+            messagingSenderId: "733891150436",
+            appId: "1:733891150436:web:8ca3a0057030914d8f9571",
+            measurementId: "G-PLFYFLC3FE"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        window.db = db;
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.getDocs = getDocs;
+        window.query = query;
+        window.where = where;
+        window.updateDoc = updateDoc;
+        window.doc = doc;
+
+        let currentClass = 6;
+        let allStudents = [];
+
+        // Initialize demo data
+        async function initDemoData() {
+            const studentsRef = collection(db, 'students');
+            const snapshot = await getDocs(studentsRef);
+            
+            if (snapshot.empty) {
+                const demoStudents = [
+                    {name: "রহিম আহমেদ", roll: 1, class: "6", branch: "A", marks: {bangla: 85, english: 78, math: 92, science: 88, social: 76}},
+                    {name: "করিম হোসেন", roll: 2, class: "6", branch: "A", marks: {bangla: 90, english: 85, math: 88, science: 92, social: 84}},
+                    {name: "সালমা খাতুন", roll: 3, class: "6", branch: "B", marks: {bangla: 88, english: 82, math: 90, science: 86, social: 80}},
+                    {name: "নাজমা বেগম", roll: 1, class: "7", branch: "A", marks: {bangla: 87, english: 89, math: 85, science: 90, social: 82}},
+                    {name: "জামাল উদ্দিন", roll: 2, class: "7", branch: "B", marks: {bangla: 92, english: 88, math: 94, science: 91, social: 87}}
+                ];
+                
+                for (const student of demoStudents) {
+                    await addDoc(studentsRef, student);
+                }
+            }
+            loadAllStudents();
+        }
+
+        async function loadAllStudents() {
+            const studentsRef = collection(db, 'students');
+            const snapshot = await getDocs(studentsRef);
+            allStudents = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+            displayRandomStudents();
+        }
+
+        function displayRandomStudents() {
+            const shuffled = [...allStudents].sort(() => 0.5 - Math.random());
+            const listDiv = document.getElementById('studentsList');
+            listDiv.innerHTML = '';
+            
+            shuffled.forEach(student => {
+                const card = document.createElement('div');
+                card.className = 'student-card';
+                card.onclick = () => showResult(student);
+                card.innerHTML = `
+                    <h3>${student.name}</h3>
+                    <p>রোল: ${student.roll} | ক্লাস: ${student.class} | শাখা: ${student.branch}</p>
+                `;
+                listDiv.appendChild(card);
+            });
+        }
+
+        window.showResult = function(student) {
+            const marks = student.marks || {};
+            const total = Object.values(marks).reduce((a, b) => a + b, 0);
+            
+            document.getElementById('resultSection').innerHTML = `
+                <div class="result-card">
+                    <h2>📊 ${student.name} এর রেজাল্ট</h2>
+                    <p>রোল: ${student.roll} | ক্লাস: ${student.class} | শাখা: ${student.branch}</p>
+                    <hr style="margin: 20px 0;">
+                    <div class="subject-row"><strong>বিষয়</strong><strong>নম্বর</strong></div>
+                    <div class="subject-row"><span>বাংলা</span><span>${marks.bangla || 0}</span></div>
+                    <div class="subject-row"><span>ইংরেজি</span><span>${marks.english || 0}</span></div>
+                    <div class="subject-row"><span>গণিত</span><span>${marks.math || 0}</span></div>
+                    <div class="subject-row"><span>বিজ্ঞান</span><span>${marks.science || 0}</span></div>
+                    <div class="subject-row"><span>সামাজিক বিজ্ঞান</span><span>${marks.social || 0}</span></div>
+                    <div class="total-marks">মোট নম্বর: ${total}/৫০০</div>
+                </div>
+            `;
+        };
+
+        window.searchStudent = async function() {
+            const name = document.getElementById('searchName').value.trim();
+            const roll = document.getElementById('searchRoll').value;
+            const cls = document.getElementById('searchClass').value;
+            const branch = document.getElementById('searchBranch').value;
+
+            let results = allStudents;
+
+            if (name) results = results.filter(s => s.name.includes(name));
+            if (roll) results = results.filter(s => s.roll == roll);
+            if (cls) results = results.filter(s => s.class == cls);
+            if (branch) results = results.filter(s => s.branch == branch);
+
+            if (results.length > 0) {
+                showResult(results[0]);
+            } else {
+                alert('কোন শিক্ষার্থী পাওয়া যায়নি!');
+            }
+        };
+
+        window.showAdminLogin = function() {
+            document.getElementById('adminModal').style.display = 'block';
+        };
+
+        window.closeAdminModal = function() {
+            document.getElementById('adminModal').style.display = 'none';
+        };
+
+        window.adminLogin = function() {
+            const user = document.getElementById('adminUser').value;
+            const pass = document.getElementById('adminPass').value;
+            
+            if (user === 'admin' && pass === 'admin') {
+                closeAdminModal();
+                document.getElementById('adminPanel').style.display = 'block';
+                selectClass(6);
+            } else {
+                alert('ভুল ইউজারনেম বা পাসওয়ার্ড!');
+            }
+        };
+
+        window.closeAdminPanel = function() {
+            document.getElementById('adminPanel').style.display = 'none';
+        };
+
+        window.selectClass = function(cls) {
+            currentClass = cls;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            loadAdminStudents();
+        };
+
+        async function loadAdminStudents() {
+            const students = allStudents.filter(s => s.class == currentClass);
+            const listDiv = document.getElementById('adminStudentsList');
+            listDiv.innerHTML = '<h3>শিক্ষার্থীদের মার্ক দিন:</h3>';
+            
+            students.forEach(student => {
+                const marks = student.marks || {};
+                const div = document.createElement('div');
+                div.style.marginBottom = '20px';
+                div.style.padding = '15px';
+                div.style.background = '#f5f5f5';
+                div.style.borderRadius = '8px';
+                div.innerHTML = `
+                    <h4>${student.name} (রোল: ${student.roll}, শাখা: ${student.branch})</h4>
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px;">
+                        <input type="number" class="mark-input" placeholder="বাংলা" value="${marks.bangla || ''}" data-id="${student.id}" data-subject="bangla">
+                        <input type="number" class="mark-input" placeholder="ইংরেজি" value="${marks.english || ''}" data-id="${student.id}" data-subject="english">
+                        <input type="number" class="mark-input" placeholder="গণিত" value="${marks.math || ''}" data-id="${student.id}" data-subject="math">
+                        <input type="number" class="mark-input" placeholder="বিজ্ঞান" value="${marks.science || ''}" data-id="${student.id}" data-subject="science">
+                        <input type="number" class="mark-input" placeholder="সামাজিক" value="${marks.social || ''}" data-id="${student.id}" data-subject="social">
+                    </div>
+                `;
+                listDiv.appendChild(div);
+            });
+            
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'save-btn';
+            saveBtn.textContent = '💾 সকল মার্ক সেভ করুন';
+            saveBtn.onclick = saveAllMarks;
+            listDiv.appendChild(saveBtn);
+        }
+
+        window.saveAllMarks = async function() {
+            const inputs = document.querySelectorAll('.mark-input');
+            const updates = {};
+            
+            inputs.forEach(input => {
+                const id = input.dataset.id;
+                const subject = input.dataset.subject;
+                const value = parseInt(input.value) || 0;
+                
+                if (!updates[id]) updates[id] = {};
+                updates[id][subject] = value;
+            });
+            
+            for (const [id, marks] of Object.entries(updates)) {
+                const studentRef = doc(db, 'students', id);
+                await updateDoc(studentRef, { marks });
+            }
+            
+            alert('সকল মার্ক সফলভাবে সেভ হয়েছে!');
+            await loadAllStudents();
+        };
+
+        window.showAddStudent = function() {
+            document.getElementById('addStudentModal').style.display = 'block';
+        };
+
+        window.closeAddStudent = function() {
+            document.getElementById('addStudentModal').style.display = 'none';
+        };
+
+        window.addStudent = async function() {
+            const name = document.getElementById('newName').value.trim();
+            const roll = parseInt(document.getElementById('newRoll').value);
+            const cls = document.getElementById('newClass').value;
+            const branch = document.getElementById('newBranch').value;
+            
+            if (!name || !roll) {
+                alert('সকল তথ্য পূরণ করুন!');
+                return;
+            }
+            
+            const studentsRef = collection(db, 'students');
+            await addDoc(studentsRef, {
+                name, roll, class: cls, branch,
+                marks: {bangla: 0, english: 0, math: 0, science: 0, social: 0}
+            });
+            
+            alert('শিক্ষার্থী সফলভাবে যোগ করা হয়েছে!');
+            closeAddStudent();
+            await loadAllStudents();
+            selectClass(currentClass);
+        };
+
+        // Initialize
+        initDemoData();
+    </script>
+</body>
+</html>
