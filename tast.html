@@ -238,11 +238,13 @@
             try {
                 updateLoadingStatus('Checking Firebase connection...');
                 
-                // Check if data exists in Firestore
-                const classesSnapshot = await db.collection('students').get();
+                // Check if we need to restructure data
+                const needsRestructure = await checkIfNeedsRestructure();
                 
-                if (classesSnapshot.empty) {
-                    updateLoadingStatus('No data found. Creating demo data...');
+                if (needsRestructure) {
+                    updateLoadingStatus('Old structure detected. Cleaning up...');
+                    await deleteAllOldData();
+                    updateLoadingStatus('Creating new professional structure...');
                     await createDemoDataInFirestore();
                 } else {
                     updateLoadingStatus('Loading data from Firebase...');
@@ -257,6 +259,112 @@
                 console.error('Firebase Error:', error);
                 updateLoadingStatus('Error: ' + error.message);
                 alert('Firebase connection failed. Please check console for details.');
+            }
+        }
+
+        // Check if database needs restructure
+        async function checkIfNeedsRestructure() {
+            try {
+                // Check if old structure exists (direct students collection)
+                const oldStructure = await db.collection('students').get();
+                
+                // If there are documents directly in students collection (not class_6, class_7, etc.)
+                if (!oldStructure.empty) {
+                    const firstDoc = oldStructure.docs[0];
+                    // Check if it's not our new structure (class_6, class_7, etc.)
+                    if (!firstDoc.id.startsWith('class_')) {
+                        return true; // Old structure detected
+                    }
+                }
+                
+                // Check if new structure exists
+                const class6Check = await db.collection('students/class_6/branch_A').limit(1).get();
+                if (class6Check.empty) {
+                    return true; // No data in new structure, needs creation
+                }
+                
+                return false; // Structure is fine
+            } catch (error) {
+                console.log('Check error, will create new structure:', error);
+                return true;
+            }
+        }
+
+        // Delete all old data from Firestore
+        async function deleteAllOldData() {
+            try {
+                // Delete old direct students collection
+                const oldStudents = await db.collection('students').get();
+                const deleteBatch = db.batch();
+                let deleteCount = 0;
+                
+                oldStudents.forEach(doc => {
+                    deleteBatch.delete(doc.ref);
+                    deleteCount++;
+                });
+                
+                if (deleteCount > 0) {
+                    await deleteBatch.commit();
+                    updateLoadingStatus(`Deleted ${deleteCount} old records...`);
+                }
+                
+                // Delete all class documents and their subcollections
+                for (let cls = 6; cls <= 10; cls++) {
+                    const classDocRef = db.collection('students').doc(`class_${cls}`);
+                    
+                    // Delete subcollections
+                    if (cls >= 9) {
+                        for (const dept of departments) {
+                            await deleteCollection(`students/class_${cls}/${dept.toLowerCase()}`, 10);
+                        }
+                    } else {
+                        await deleteCollection(`students/class_${cls}/branch_A`, 10);
+                        await deleteCollection(`students/class_${cls}/branch_B`, 10);
+                    }
+                    
+                    // Delete the class document itself
+                    await classDocRef.delete();
+                }
+                
+                updateLoadingStatus('Old data cleaned successfully!');
+            } catch (error) {
+                console.error('Error deleting old data:', error);
+                updateLoadingStatus('Proceeding with new structure...');
+            }
+        }
+
+        // Helper function to delete collection
+        async function deleteCollection(collectionPath, batchSize) {
+            const collectionRef = db.collection(collectionPath);
+            const query = collectionRef.limit(batchSize);
+            
+            return new Promise((resolve, reject) => {
+                deleteQueryBatch(query, resolve, reject);
+            });
+        }
+
+        async function deleteQueryBatch(query, resolve, reject) {
+            try {
+                const snapshot = await query.get();
+                
+                if (snapshot.size === 0) {
+                    resolve();
+                    return;
+                }
+                
+                const batch = db.batch();
+                snapshot.docs.forEach((doc) => {
+                    batch.delete(doc.ref);
+                });
+                
+                await batch.commit();
+                
+                // Recurse on the next process tick
+                process.nextTick(() => {
+                    deleteQueryBatch(query, resolve, reject);
+                });
+            } catch (error) {
+                reject(error);
             }
         }
 
