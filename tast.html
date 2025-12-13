@@ -123,9 +123,45 @@
                     <option value="Mechanical">Mechanical</option>
                 </select>
             </div>
-            <button onclick="addStudent()" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition">
+            <button id="addStudentBtn" onclick="addStudent()" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition">
                 ➕ Add Student
             </button>
+        </div>
+
+        <!-- Student List with Delete Option -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">👥 Manage Students</h2>
+            <div class="mb-4 flex gap-2">
+                <select id="manageClassFilter" onchange="filterStudentsForManage()" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                    <option value="">All Classes</option>
+                    <option value="6">Class 6</option>
+                    <option value="7">Class 7</option>
+                    <option value="8">Class 8</option>
+                    <option value="9">Class 9</option>
+                    <option value="10">Class 10</option>
+                </select>
+                <select id="manageBranchFilter" onchange="filterStudentsForManage()" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                    <option value="">All Branches</option>
+                    <option value="A">Branch A</option>
+                    <option value="B">Branch B</option>
+                </select>
+            </div>
+            <div id="manageStudentsList" class="overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-blue-600 text-white">
+                            <th class="border border-gray-300 p-3">Name</th>
+                            <th class="border border-gray-300 p-3">Roll</th>
+                            <th class="border border-gray-300 p-3">Class</th>
+                            <th class="border border-gray-300 p-3">Branch</th>
+                            <th class="border border-gray-300 p-3">Department</th>
+                            <th class="border border-gray-300 p-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manageStudentsBody">
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="bg-white rounded-lg shadow-lg p-6">
@@ -368,11 +404,22 @@
             }
         }
 
-        // Create Demo Data in Firestore
+        // Create Demo Data in Firestore with NEW STRUCTURE
         async function createDemoDataInFirestore() {
-            const batch = db.batch();
-            let count = 0;
+            updateLoadingStatus('Setting up professional database structure...');
+            
+            // First, create class documents (placeholder)
+            for (let cls = 6; cls <= 10; cls++) {
+                await db.collection('students').doc(`class_${cls}`).set({
+                    className: `Class ${cls}`,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+            let totalCount = 0;
+            const totalStudents = demoData.length;
 
+            // Now add students to proper subcollections
             for (const student of demoData) {
                 const subjectKey = student.class >= '9' ? `${student.class}-${student.department}` : student.class;
                 const marks = {};
@@ -387,7 +434,7 @@
 
                 const docRef = db.collection(collectionPath).doc();
                 
-                batch.set(docRef, {
+                await docRef.set({
                     id: docRef.id,
                     name: student.name,
                     roll: student.roll,
@@ -401,36 +448,42 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                count++;
-                updateLoadingStatus(`Creating demo data... (${count}/${demoData.length})`);
+                totalCount++;
+                updateLoadingStatus(`Creating students... (${totalCount}/${totalStudents}) - ${student.name}`);
             }
 
-            await batch.commit();
-            updateLoadingStatus('Demo data created successfully!');
+            updateLoadingStatus('✅ Professional database structure created successfully!');
         }
 
         // Load All Students from Firestore
         async function loadAllStudents() {
             students = [];
+            updateLoadingStatus('Loading all students from database...');
             
-            for (let cls = 6; cls <= 10; cls++) {
-                if (cls >= 9) {
-                    // Load by department for class 9-10
-                    for (const dept of departments) {
-                        const snapshot = await db.collection(`students/class_${cls}/${dept.toLowerCase()}`).get();
-                        snapshot.forEach(doc => {
-                            students.push({ ...doc.data(), firestoreId: doc.id });
-                        });
-                    }
-                } else {
-                    // Load by branch for class 6-8
-                    for (const branch of ['A', 'B']) {
-                        const snapshot = await db.collection(`students/class_${cls}/branch_${branch}`).get();
-                        snapshot.forEach(doc => {
-                            students.push({ ...doc.data(), firestoreId: doc.id });
-                        });
+            try {
+                for (let cls = 6; cls <= 10; cls++) {
+                    if (cls >= 9) {
+                        // Load by department for class 9-10
+                        for (const dept of departments) {
+                            const snapshot = await db.collection(`students/class_${cls}/${dept.toLowerCase()}`).get();
+                            snapshot.forEach(doc => {
+                                students.push({ ...doc.data(), firestoreId: doc.id });
+                            });
+                        }
+                    } else {
+                        // Load by branch for class 6-8
+                        for (const branch of ['A', 'B']) {
+                            const snapshot = await db.collection(`students/class_${cls}/branch_${branch}`).get();
+                            snapshot.forEach(doc => {
+                                students.push({ ...doc.data(), firestoreId: doc.id });
+                            });
+                        }
                     }
                 }
+                updateLoadingStatus(`Loaded ${students.length} students successfully!`);
+            } catch (error) {
+                console.error('Error loading students:', error);
+                updateLoadingStatus('Error loading students: ' + error.message);
             }
         }
 
