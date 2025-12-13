@@ -5,26 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dumuria Govt. Technical School - Result System</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .hidden { display: none; }
-        @media print {
-            body * { visibility: hidden; }
-            #pdfContent, #pdfContent * { visibility: visible; }
-            #pdfContent { position: absolute; left: 0; top: 0; }
-        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
 
     <!-- Loading Screen -->
     <div id="loadingScreen" class="flex items-center justify-center min-h-screen">
-        <div class="text-3xl text-blue-600 font-bold">Loading...</div>
+        <div class="text-center">
+            <div class="text-3xl text-blue-600 font-bold mb-4">Loading...</div>
+            <div id="loadingStatus" class="text-gray-600">Initializing Firebase...</div>
+        </div>
     </div>
 
     <!-- Home Page -->
     <div id="homePage" class="hidden container mx-auto px-4 py-8">
-        <!-- Header -->
         <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
             <h1 class="text-4xl font-bold text-center text-blue-900 mb-2">
                 🎓 Dumuria Government Technical School & College
@@ -32,14 +31,12 @@
             <p class="text-center text-gray-600">Student Result Management System</p>
         </div>
 
-        <!-- Admin Button -->
         <div class="flex justify-end mb-6">
             <button onclick="showLogin()" class="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
                 👤 Admin Login
             </button>
         </div>
 
-        <!-- Search Section -->
         <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">🔍 Search Student Result</h2>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
@@ -69,7 +66,6 @@
             </div>
         </div>
 
-        <!-- All Students -->
         <div class="bg-white rounded-lg shadow-lg p-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">📋 All Students</h2>
             <div id="allStudentsList" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
@@ -93,7 +89,6 @@
 
     <!-- Admin Panel -->
     <div id="adminPage" class="hidden container mx-auto px-4 py-8">
-        <!-- Header -->
         <div class="bg-white rounded-lg shadow-lg p-6 mb-8 flex justify-between items-center">
             <h1 class="text-3xl font-bold text-blue-900">👨‍🏫 Admin Panel</h1>
             <button onclick="handleLogout()" class="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition">
@@ -101,12 +96,14 @@
             </button>
         </div>
 
-        <!-- Add New Student -->
         <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">➕ Add New Student</h2>
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <input type="text" id="newStudentName" placeholder="Student Name" class="border-2 border-gray-300 rounded-lg px-4 py-2">
                 <input type="number" id="newStudentRoll" placeholder="Roll" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                <input type="text" id="newFatherName" placeholder="Father Name" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                <input type="text" id="newMotherName" placeholder="Mother Name" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                <input type="text" id="newPhone" placeholder="Phone Number" class="border-2 border-gray-300 rounded-lg px-4 py-2">
                 <select id="newStudentClass" onchange="checkDepartment()" class="border-2 border-gray-300 rounded-lg px-4 py-2">
                     <option value="6">Class 6</option>
                     <option value="7">Class 7</option>
@@ -131,11 +128,9 @@
             </button>
         </div>
 
-        <!-- Mark Entry -->
         <div class="bg-white rounded-lg shadow-lg p-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">📝 Enter Marks by Subject</h2>
             
-            <!-- Class Selection -->
             <div class="mb-6">
                 <label class="block text-gray-700 font-semibold mb-2">Select Class:</label>
                 <div class="flex flex-wrap gap-2">
@@ -147,13 +142,11 @@
                 </div>
             </div>
 
-            <!-- Subject Selection -->
             <div id="subjectSelection" class="hidden mb-6">
                 <label class="block text-gray-700 font-semibold mb-2">Select Subject:</label>
                 <div id="subjectButtons" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
             </div>
 
-            <!-- Mark Entry Table -->
             <div id="markEntryTable" class="hidden overflow-x-auto"></div>
         </div>
     </div>
@@ -170,9 +163,22 @@
     </div>
 
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCy9gJJsEfgoT1CLAtaNiaykrrPSTC9q1g",
+            authDomain: "sctop-d22bc.firebaseapp.com",
+            projectId: "sctop-d22bc",
+            storageBucket: "sctop-d22bc.firebasestorage.app",
+            messagingSenderId: "733891150436",
+            appId: "1:733891150436:web:8ca3a0057030914d8f9571"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         // Global Variables
         let students = [];
-        let currentPage = 'loading';
         let isAdmin = false;
         let selectedClass = '';
         let selectedSubject = '';
@@ -194,59 +200,129 @@
 
         const departments = ['Civil', 'Computer', 'Electrical', 'Mechanical'];
 
-        // Initialize
+        // Demo Data
+        const demoData = [
+            { name: "রহিম আহমেদ", roll: 1, fatherName: "আব্দুল করিম", motherName: "সালমা বেগম", phone: "01711111111", class: "6", branch: "A", department: "" },
+            { name: "ফাতিমা খাতুন", roll: 2, fatherName: "মোহাম্মদ আলী", motherName: "রোকেয়া বেগম", phone: "01722222222", class: "6", branch: "A", department: "" },
+            { name: "করিম হাসান", roll: 1, fatherName: "হাসান মিয়া", motherName: "আয়েশা খাতুন", phone: "01733333333", class: "6", branch: "B", department: "" },
+            { name: "নাদিয়া ইসলাম", roll: 2, fatherName: "আবুল কালাম", motherName: "রুমানা আক্তার", phone: "01744444444", class: "6", branch: "B", department: "" },
+            
+            { name: "সাকিব আল হাসান", roll: 1, fatherName: "নজরুল ইসলাম", motherName: "শাপলা বেগম", phone: "01755555555", class: "7", branch: "A", department: "" },
+            { name: "তাসনিম জাহান", roll: 2, fatherName: "জহির উদ্দিন", motherName: "পারভীন আক্তার", phone: "01766666666", class: "7", branch: "A", department: "" },
+            { name: "রাফি আহমেদ", roll: 1, fatherName: "আনোয়ার হোসেন", motherName: "শাহনাজ বেগম", phone: "01777777777", class: "7", branch: "B", department: "" },
+            
+            { name: "সাদিয়া আফরিন", roll: 1, fatherName: "মতিউর রহমান", motherName: "সুমাইয়া খাতুন", phone: "01788888888", class: "8", branch: "A", department: "" },
+            { name: "তানভীর হোসেন", roll: 2, fatherName: "শামসুল হক", motherName: "নাজমা বেগম", phone: "01799999999", class: "8", branch: "A", department: "" },
+            
+            { name: "তানভীর আহমেদ", roll: 1, fatherName: "জহির উদ্দিন", motherName: "পারভীন আক্তার", phone: "01700000001", class: "9", branch: "A", department: "Civil" },
+            { name: "মেহেদী হাসান", roll: 2, fatherName: "আলমগীর হোসেন", motherName: "রেহানা বেগম", phone: "01700000002", class: "9", branch: "A", department: "Civil" },
+            { name: "নাদিয়া ইসলাম", roll: 1, fatherName: "আবুল কালাম", motherName: "রুমানা আক্তার", phone: "01700000003", class: "9", branch: "A", department: "Computer" },
+            { name: "সাবিহা খান", roll: 2, fatherName: "কামাল উদ্দিন", motherName: "ফরিদা বেগম", phone: "01700000004", class: "9", branch: "B", department: "Computer" },
+            { name: "আরিফ রহমান", roll: 1, fatherName: "হাবিবুর রহমান", motherName: "নাসরিন সুলতানা", phone: "01700000005", class: "9", branch: "A", department: "Electrical" },
+            { name: "তৌহিদ আলম", roll: 1, fatherName: "সাইফুল ইসলাম", motherName: "জেসমিন আক্তার", phone: "01700000006", class: "9", branch: "B", department: "Mechanical" },
+            
+            { name: "রাকিব হোসেন", roll: 1, fatherName: "শামসুল হক", motherName: "নাজমা বেগম", phone: "01700000007", class: "10", branch: "A", department: "Civil" },
+            { name: "সুমাইয়া খাতুন", roll: 1, fatherName: "মনিরুল ইসলাম", motherName: "রোজিনা বেগম", phone: "01700000008", class: "10", branch: "B", department: "Computer" },
+            { name: "জুনায়েদ আহমেদ", roll: 1, fatherName: "আব্দুল মালেক", motherName: "সেলিনা আক্তার", phone: "01700000009", class: "10", branch: "A", department: "Electrical" },
+            { name: "ফাহিম হাসান", roll: 1, fatherName: "রফিকুল ইসলাম", motherName: "নাহিদা বেগম", phone: "01700000010", class: "10", branch: "B", department: "Mechanical" }
+        ];
+
+        // Update Loading Status
+        function updateLoadingStatus(message) {
+            const statusEl = document.getElementById('loadingStatus');
+            if (statusEl) statusEl.textContent = message;
+        }
+
+        // Initialize and Load Data from Firestore
         async function init() {
             try {
-                const stored = await window.storage.get('students');
-                if (stored) {
-                    students = JSON.parse(stored.value);
+                updateLoadingStatus('Checking Firebase connection...');
+                
+                // Check if data exists in Firestore
+                const classesSnapshot = await db.collection('students').get();
+                
+                if (classesSnapshot.empty) {
+                    updateLoadingStatus('No data found. Creating demo data...');
+                    await createDemoDataInFirestore();
                 } else {
-                    students = generateDemoStudents();
-                    await saveStudents();
+                    updateLoadingStatus('Loading data from Firebase...');
                 }
+                
+                // Load all students
+                await loadAllStudents();
+                
+                updateLoadingStatus('Complete!');
+                showHome();
             } catch (error) {
-                students = generateDemoStudents();
+                console.error('Firebase Error:', error);
+                updateLoadingStatus('Error: ' + error.message);
+                alert('Firebase connection failed. Please check console for details.');
             }
-            showHome();
         }
 
-        // Generate Demo Students
-        function generateDemoStudents() {
-            const names = ['Rahim Ahmed', 'Karim Hassan', 'Fatima Begum', 'Ayesha Khan', 'Habib Rahman'];
-            const demo = [];
+        // Create Demo Data in Firestore
+        async function createDemoDataInFirestore() {
+            const batch = db.batch();
+            let count = 0;
+
+            for (const student of demoData) {
+                const subjectKey = student.class >= '9' ? `${student.class}-${student.department}` : student.class;
+                const marks = {};
+                
+                subjects[subjectKey]?.forEach(subject => {
+                    marks[subject] = Math.floor(Math.random() * 40) + 60;
+                });
+
+                const collectionPath = student.class >= '9' 
+                    ? `students/class_${student.class}/${student.department.toLowerCase()}`
+                    : `students/class_${student.class}/branch_${student.branch}`;
+
+                const docRef = db.collection(collectionPath).doc();
+                
+                batch.set(docRef, {
+                    id: docRef.id,
+                    name: student.name,
+                    roll: student.roll,
+                    fatherName: student.fatherName,
+                    motherName: student.motherName,
+                    phone: student.phone,
+                    class: student.class,
+                    branch: student.branch,
+                    department: student.department,
+                    marks: marks,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                count++;
+                updateLoadingStatus(`Creating demo data... (${count}/${demoData.length})`);
+            }
+
+            await batch.commit();
+            updateLoadingStatus('Demo data created successfully!');
+        }
+
+        // Load All Students from Firestore
+        async function loadAllStudents() {
+            students = [];
             
             for (let cls = 6; cls <= 10; cls++) {
-                const branches = ['A', 'B'];
-                branches.forEach(branch => {
-                    for (let i = 1; i <= 3; i++) {
-                        const student = {
-                            id: `${cls}-${branch}-${i}`,
-                            name: `${names[i % names.length]} ${cls}${branch}`,
-                            roll: i,
-                            class: cls.toString(),
-                            branch: branch,
-                            department: cls >= 9 ? departments[i % departments.length] : '',
-                            marks: {}
-                        };
-                        
-                        const subjectKey = cls >= 9 ? `${cls}-${student.department}` : cls.toString();
-                        subjects[subjectKey]?.forEach(subject => {
-                            student.marks[subject] = Math.floor(Math.random() * 40) + 60;
+                if (cls >= 9) {
+                    // Load by department for class 9-10
+                    for (const dept of departments) {
+                        const snapshot = await db.collection(`students/class_${cls}/${dept.toLowerCase()}`).get();
+                        snapshot.forEach(doc => {
+                            students.push({ ...doc.data(), firestoreId: doc.id });
                         });
-                        
-                        demo.push(student);
                     }
-                });
-            }
-            return demo;
-        }
-
-        // Save Students
-        async function saveStudents() {
-            try {
-                await window.storage.set('students', JSON.stringify(students));
-            } catch (error) {
-                console.error('Save failed:', error);
+                } else {
+                    // Load by branch for class 6-8
+                    for (const branch of ['A', 'B']) {
+                        const snapshot = await db.collection(`students/class_${cls}/branch_${branch}`).get();
+                        snapshot.forEach(doc => {
+                            students.push({ ...doc.data(), firestoreId: doc.id });
+                        });
+                    }
+                }
             }
         }
 
@@ -265,20 +341,11 @@
             } else if (page === 'admin') {
                 document.getElementById('adminPage').classList.remove('hidden');
             }
-            currentPage = page;
         }
 
-        function showHome() {
-            showPage('home');
-        }
-
-        function showLogin() {
-            showPage('login');
-        }
-
-        function showAdmin() {
-            showPage('admin');
-        }
+        function showHome() { showPage('home'); }
+        function showLogin() { showPage('login'); }
+        function showAdmin() { showPage('admin'); }
 
         // Login
         function handleLogin() {
@@ -356,12 +423,13 @@
             const modal = document.getElementById('studentModal');
             const content = document.getElementById('modalContent');
             
-            const subjectKey = student.class >= '9' ? `${student.class}-${student.department}` : student.class;
             const total = Object.values(student.marks).reduce((sum, mark) => sum + parseInt(mark || 0), 0);
             
             content.innerHTML = `
                 <div class="bg-blue-50 p-4 rounded-lg mb-4">
                     <p class="text-lg"><strong>Name:</strong> ${student.name}</p>
+                    <p><strong>Father:</strong> ${student.fatherName} | <strong>Mother:</strong> ${student.motherName}</p>
+                    <p><strong>Phone:</strong> ${student.phone}</p>
                     <p><strong>Roll:</strong> ${student.roll} | <strong>Class:</strong> ${student.class} | <strong>Branch:</strong> ${student.branch}</p>
                     ${student.department ? `<p><strong>Department:</strong> ${student.department}</p>` : ''}
                 </div>
@@ -434,12 +502,14 @@
     <div class="info">
         <div>
             <div class="info-item"><strong>Student Name:</strong> ${student.name}</div>
-            <div class="info-item"><strong>Roll Number:</strong> ${student.roll}</div>
+            <div class="info-item"><strong>Father Name:</strong> ${student.fatherName}</div>
+            <div class="info-item"><strong>Mother Name:</strong> ${student.motherName}</div>
         </div>
         <div>
-            <div class="info-item"><strong>Class:</strong> ${student.class}</div>
-            <div class="info-item"><strong>Branch:</strong> ${student.branch}</div>
+            <div class="info-item"><strong>Roll Number:</strong> ${student.roll}</div>
+            <div class="info-item"><strong>Class:</strong> ${student.class} | <strong>Branch:</strong> ${student.branch}</div>
             ${student.department ? `<div class="info-item"><strong>Department:</strong> ${student.department}</div>` : ''}
+            <div class="info-item"><strong>Phone:</strong> ${student.phone}</div>
         </div>
     </div>
     
@@ -498,11 +568,14 @@
         async function addStudent() {
             const name = document.getElementById('newStudentName').value;
             const roll = document.getElementById('newStudentRoll').value;
+            const fatherName = document.getElementById('newFatherName').value;
+            const motherName = document.getElementById('newMotherName').value;
+            const phone = document.getElementById('newPhone').value;
             const cls = document.getElementById('newStudentClass').value;
             const branch = document.getElementById('newStudentBranch').value;
             const department = document.getElementById('newStudentDepartment').value;
 
-            if (!name || !roll) {
+            if (!name || !roll || !fatherName || !motherName || !phone) {
                 alert('Please fill all required fields!');
                 return;
             }
@@ -512,27 +585,43 @@
                 return;
             }
 
-            const student = {
-                id: `${cls}-${branch}-${roll}-${Date.now()}`,
-                name: name,
-                roll: parseInt(roll),
-                class: cls,
-                branch: branch,
-                department: department,
-                marks: {}
-            };
-
             const subjectKey = cls >= '9' ? `${cls}-${department}` : cls;
+            const marks = {};
             subjects[subjectKey]?.forEach(subject => {
-                student.marks[subject] = 0;
+                marks[subject] = 0;
             });
 
-            students.push(student);
-            await saveStudents();
-            
-            document.getElementById('newStudentName').value = '';
-            document.getElementById('newStudentRoll').value = '';
-            alert('Student added successfully!');
+            const collectionPath = cls >= '9' 
+                ? `students/class_${cls}/${department.toLowerCase()}`
+                : `students/class_${cls}/branch_${branch}`;
+
+            try {
+                const docRef = await db.collection(collectionPath).add({
+                    name: name,
+                    roll: parseInt(roll),
+                    fatherName: fatherName,
+                    motherName: motherName,
+                    phone: phone,
+                    class: cls,
+                    branch: branch,
+                    department: department,
+                    marks: marks,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Reload students
+                await loadAllStudents();
+
+                document.getElementById('newStudentName').value = '';
+                document.getElementById('newStudentRoll').value = '';
+                document.getElementById('newFatherName').value = '';
+                document.getElementById('newMotherName').value = '';
+                document.getElementById('newPhone').value = '';
+                alert('Student added successfully!');
+            } catch (error) {
+                console.error('Error adding student:', error);
+                alert('Error adding student: ' + error.message);
+            }
         }
 
         // Select Class for Mark Entry
@@ -640,7 +729,7 @@
                                            min="0" 
                                            max="100" 
                                            value="${student.marks[actualSubject] || 0}"
-                                           onchange="updateMark('${student.id}', '${actualSubject}', this.value)"
+                                           onchange="updateMark('${student.firestoreId}', '${actualSubject}', this.value, '${student.class}', '${student.branch}', '${student.department}')"
                                            class="w-full border-2 border-gray-300 rounded px-3 py-2 text-center focus:border-blue-500 focus:outline-none">
                                 </td>
                             </tr>
@@ -650,12 +739,25 @@
             `;
         }
 
-        // Update Mark
-        async function updateMark(studentId, subject, mark) {
-            const student = students.find(s => s.id === studentId);
-            if (student) {
-                student.marks[subject] = parseInt(mark) || 0;
-                await saveStudents();
+        // Update Mark in Firestore
+        async function updateMark(firestoreId, subject, mark, cls, branch, department) {
+            const collectionPath = cls >= '9' 
+                ? `students/class_${cls}/${department.toLowerCase()}`
+                : `students/class_${cls}/branch_${branch}`;
+
+            try {
+                await db.collection(collectionPath).doc(firestoreId).update({
+                    [`marks.${subject}`]: parseInt(mark) || 0
+                });
+
+                // Update local array
+                const student = students.find(s => s.firestoreId === firestoreId);
+                if (student) {
+                    student.marks[subject] = parseInt(mark) || 0;
+                }
+            } catch (error) {
+                console.error('Error updating mark:', error);
+                alert('Error updating mark: ' + error.message);
             }
         }
 
