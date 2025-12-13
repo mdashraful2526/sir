@@ -506,7 +506,23 @@
 
         function showHome() { showPage('home'); }
         function showLogin() { showPage('login'); }
-        function showAdmin() { showPage('admin'); }
+        function showAdmin() { 
+            showPage('admin'); 
+            filterStudentsForManage(); // Load student list when admin page opens
+        }
+
+        // Add Student - Check Department
+        function checkDepartment() {
+            const cls = document.getElementById('newStudentClass').value;
+            const deptSelect = document.getElementById('newStudentDepartment');
+            
+            if (cls === '9' || cls === '10') {
+                deptSelect.classList.remove('hidden');
+            } else {
+                deptSelect.classList.add('hidden');
+                deptSelect.value = '';
+            }
+        }
 
         // Login
         function handleLogin() {
@@ -713,25 +729,22 @@
             a.click();
         }
 
-        // Add Student
-        function checkDepartment() {
-            const cls = document.getElementById('newStudentClass').value;
-            const deptSelect = document.getElementById('newStudentDepartment');
-            
-            if (cls === '9' || cls === '10') {
-                deptSelect.classList.remove('hidden');
-            } else {
-                deptSelect.classList.add('hidden');
-                deptSelect.value = '';
-            }
-        }
+        // Global variable to prevent duplicate submissions
+        let isSubmitting = false;
 
+        // Add Student with duplicate prevention
         async function addStudent() {
-            const name = document.getElementById('newStudentName').value;
-            const roll = document.getElementById('newStudentRoll').value;
-            const fatherName = document.getElementById('newFatherName').value;
-            const motherName = document.getElementById('newMotherName').value;
-            const phone = document.getElementById('newPhone').value;
+            // Prevent duplicate submissions
+            if (isSubmitting) {
+                alert('Please wait, student is being added...');
+                return;
+            }
+
+            const name = document.getElementById('newStudentName').value.trim();
+            const roll = document.getElementById('newStudentRoll').value.trim();
+            const fatherName = document.getElementById('newFatherName').value.trim();
+            const motherName = document.getElementById('newMotherName').value.trim();
+            const phone = document.getElementById('newPhone').value.trim();
             const cls = document.getElementById('newStudentClass').value;
             const branch = document.getElementById('newStudentBranch').value;
             const department = document.getElementById('newStudentDepartment').value;
@@ -745,6 +758,26 @@
                 alert('Please select department for Class 9/10!');
                 return;
             }
+
+            // Check if student already exists (same name, roll, class, branch)
+            const existingStudent = students.find(s => 
+                s.name.toLowerCase() === name.toLowerCase() && 
+                s.roll === parseInt(roll) && 
+                s.class === cls && 
+                s.branch === branch
+            );
+
+            if (existingStudent) {
+                alert('A student with the same name, roll, class, and branch already exists!');
+                return;
+            }
+
+            // Disable button and show loading state
+            isSubmitting = true;
+            const addBtn = document.getElementById('addStudentBtn');
+            addBtn.disabled = true;
+            addBtn.innerHTML = '⏳ Adding Student...';
+            addBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
             const subjectKey = cls >= '9' ? `${cls}-${department}` : cls;
             const marks = {};
@@ -773,15 +806,91 @@
                 // Reload students
                 await loadAllStudents();
 
+                // Clear form
                 document.getElementById('newStudentName').value = '';
                 document.getElementById('newStudentRoll').value = '';
                 document.getElementById('newFatherName').value = '';
                 document.getElementById('newMotherName').value = '';
                 document.getElementById('newPhone').value = '';
-                alert('Student added successfully!');
+                
+                // Refresh manage students list
+                filterStudentsForManage();
+                
+                alert('✅ Student added successfully!');
             } catch (error) {
                 console.error('Error adding student:', error);
-                alert('Error adding student: ' + error.message);
+                alert('❌ Error adding student: ' + error.message);
+            } finally {
+                // Re-enable button
+                isSubmitting = false;
+                addBtn.disabled = false;
+                addBtn.innerHTML = '➕ Add Student';
+                addBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // Filter and display students for management
+        function filterStudentsForManage() {
+            const classFilter = document.getElementById('manageClassFilter').value;
+            const branchFilter = document.getElementById('manageBranchFilter').value;
+            
+            let filtered = students;
+            
+            if (classFilter) {
+                filtered = filtered.filter(s => s.class === classFilter);
+            }
+            
+            if (branchFilter) {
+                filtered = filtered.filter(s => s.branch === branchFilter);
+            }
+
+            const tbody = document.getElementById('manageStudentsBody');
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-gray-500">No students found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(student => `
+                <tr class="hover:bg-gray-50">
+                    <td class="border border-gray-300 p-3">${student.name}</td>
+                    <td class="border border-gray-300 p-3 text-center">${student.roll}</td>
+                    <td class="border border-gray-300 p-3 text-center">${student.class}</td>
+                    <td class="border border-gray-300 p-3 text-center">${student.branch}</td>
+                    <td class="border border-gray-300 p-3 text-center">${student.department || '-'}</td>
+                    <td class="border border-gray-300 p-3 text-center">
+                        <button onclick='deleteStudent("${student.firestoreId}", "${student.class}", "${student.branch}", "${student.department}", "${student.name}")' 
+                                class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
+                            🗑️ Delete
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Delete Student
+        async function deleteStudent(firestoreId, cls, branch, department, name) {
+            if (!confirm(`Are you sure you want to delete ${name}?`)) {
+                return;
+            }
+
+            const collectionPath = cls >= '9' 
+                ? `students/class_${cls}/${department.toLowerCase()}`
+                : `students/class_${cls}/branch_${branch}`;
+
+            try {
+                await db.collection(collectionPath).doc(firestoreId).delete();
+                
+                // Remove from local array
+                students = students.filter(s => s.firestoreId !== firestoreId);
+                
+                // Refresh the list
+                filterStudentsForManage();
+                
+                alert('✅ Student deleted successfully!');
+            } catch (error) {
+                console.error('Error deleting student:', error);
+                alert('❌ Error deleting student: ' + error.message);
             }
         }
 
