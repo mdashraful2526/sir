@@ -362,22 +362,43 @@
         const departments = ['Civil', 'Computer', 'Electrical', 'Mechanical'];
 
         // Demo Data
-        // Demo Data - Updated structure
+        // Demo Data - One student per roll per branch
         const demoData = [
+            // Class 6 - Branch A
             { name: "রহিম আহমেদ", roll: 1, fatherName: "আব্দুল করিম", motherName: "সালমা বেগম", phone: "01711111111", class: "6", branch: "A", department: "" },
             { name: "ফাতিমা খাতুন", roll: 2, fatherName: "মোহাম্মদ আলী", motherName: "রোকেয়া বেগম", phone: "01722222222", class: "6", branch: "A", department: "" },
-            { name: "করিম হাসান", roll: 1, fatherName: "হাসান মিয়া", motherName: "আয়েশা খাতুন", phone: "01733333333", class: "6", branch: "B", department: "" },
-            { name: "নাদিয়া ইসলাম", roll: 2, fatherName: "আবুল কালাম", motherName: "রুমানা আক্তার", phone: "01744444444", class: "6", branch: "B", department: "" },
+            { name: "সাকিব হাসান", roll: 3, fatherName: "হাসান মিয়া", motherName: "আয়েশা খাতুন", phone: "01733333333", class: "6", branch: "A", department: "" },
             
-            { name: "সাকিব আল হাসান", roll: 1, fatherName: "নজরুল ইসলাম", motherName: "শাপলা বেগম", phone: "01755555555", class: "7", branch: "A", department: "" },
-            { name: "তাসনিম জাহান", roll: 2, fatherName: "জহির উদ্দিন", motherName: "পারভীন আক্তার", phone: "01766666666", class: "7", branch: "A", department: "" },
+            // Class 6 - Branch B
+            { name: "নাদিয়া ইসলাম", roll: 1, fatherName: "আবুল কালাম", motherName: "রুমানা আক্তার", phone: "01744444444", class: "6", branch: "B", department: "" },
+            { name: "তানভীর রহমান", roll: 2, fatherName: "রহমান সাহেব", motherName: "শাপলা বেগম", phone: "01755555555", class: "6", branch: "B", department: "" },
             
-            { name: "সাদিয়া আফরিন", roll: 1, fatherName: "মতিউর রহমান", motherName: "সুমাইয়া খাতুন", phone: "01788888888", class: "8", branch: "A", department: "" },
+            // Class 7 - Branch A
+            { name: "মেহেদী হাসান", roll: 1, fatherName: "নজরুল ইসলাম", motherName: "শাহনাজ বেগম", phone: "01766666666", class: "7", branch: "A", department: "" },
+            { name: "তাসনিম জাহান", roll: 2, fatherName: "জহির উদ্দিন", motherName: "পারভীন আক্তার", phone: "01777777777", class: "7", branch: "A", department: "" },
             
-            { name: "তানভীর আহমেদ", roll: 1, fatherName: "জহির উদ্দিন", motherName: "পারভীন আক্তার", phone: "01700000001", class: "9", branch: "A", department: "Civil" },
-            { name: "নাদিয়া ইসলাম", roll: 1, fatherName: "আবুল কালাম", motherName: "রুমানা আক্তার", phone: "01700000003", class: "9", branch: "A", department: "Computer" },
+            // Class 7 - Branch B
+            { name: "রাফি আহমেদ", roll: 1, fatherName: "আনোয়ার হোসেন", motherName: "সুমাইয়া খাতুন", phone: "01788888888", class: "7", branch: "B", department: "" },
             
-            { name: "রাকিব হোসেন", roll: 1, fatherName: "শামসুল হক", motherName: "নাজমা বেগম", phone: "01700000007", class: "10", branch: "A", department: "Civil" }
+            // Class 8 - Branch A
+            { name: "সাদিয়া আফরিন", roll: 1, fatherName: "মতিউর রহমান", motherName: "নাসরিন সুলতানা", phone: "01799999999", class: "8", branch: "A", department: "" },
+            { name: "আরিফ হোসেন", roll: 2, fatherName: "শামসুল হক", motherName: "নাজমা বেগম", phone: "01700000001", class: "8", branch: "A", department: "" },
+            
+            // Class 9 - Civil
+            { name: "তানভীর আহমেদ", roll: 1, fatherName: "জহির উদ্দিন", motherName: "পারভীন আক্তার", phone: "01700000002", class: "9", branch: "A", department: "Civil" },
+            { name: "মাহমুদ হাসান", roll: 2, fatherName: "আলমগীর হোসেন", motherName: "রেহানা বেগম", phone: "01700000003", class: "9", branch: "A", department: "Civil" },
+            
+            // Class 9 - Computer
+            { name: "নাদিয়া সুলতানা", roll: 1, fatherName: "আবুল কালাম", motherName: "রুমানা আক্তার", phone: "01700000004", class: "9", branch: "A", department: "Computer" },
+            
+            // Class 9 - Electrical
+            { name: "আরিফ রহমান", roll: 1, fatherName: "হাবিবুর রহমান", motherName: "ফরিদা বেগম", phone: "01700000005", class: "9", branch: "B", department: "Electrical" },
+            
+            // Class 10 - Civil
+            { name: "রাকিব হোসেন", roll: 1, fatherName: "শামসুল হক", motherName: "নাজমা বেগম", phone: "01700000006", class: "10", branch: "A", department: "Civil" },
+            
+            // Class 10 - Computer
+            { name: "সুমাইয়া খাতুন", roll: 1, fatherName: "মনিরুল ইসলাম", motherName: "রোজিনা বেগম", phone: "01700000007", class: "10", branch: "B", department: "Computer" }
         ];
 
         // Update Loading Status
@@ -1405,7 +1426,7 @@
             renderMarkTable();
         }
 
-        // Render Mark Entry Table with Written, MCQ, Practical columns
+        // Render Mark Entry Table with image format (ছবির মত)
         function renderMarkTable() {
             const container = document.getElementById('markEntryTable');
             container.classList.remove('hidden');
@@ -1413,102 +1434,112 @@
             let filteredStudents = students.filter(s => s.class === selectedClass);
             
             if (selectedSubject.includes('-')) {
-                const [dept, subj] = selectedSubject.split('-', 1);
+                const [dept] = selectedSubject.split('-');
                 filteredStudents = filteredStudents.filter(s => s.department === dept);
             }
 
+            // Sort by branch then roll
+            filteredStudents.sort((a, b) => {
+                if (a.branch !== b.branch) return a.branch.localeCompare(b.branch);
+                return a.roll - b.roll;
+            });
+
             const actualSubject = selectedSubject.includes('-') ? selectedSubject.split('-').slice(1).join('-') : selectedSubject;
             
-            // Build table headers based on subject type
-            let headers = '<th class="border border-gray-300 p-3">Student Name</th><th class="border border-gray-300 p-3">Roll</th><th class="border border-gray-300 p-3">Branch</th>';
-            
-            if (selectedSubject.includes('-')) {
-                headers += '<th class="border border-gray-300 p-3">Department</th>';
-            }
-            
-            if (currentSubjectData.written > 0) {
-                headers += `<th class="border border-gray-300 p-3">Written (${currentSubjectData.written})</th>`;
-            }
-            if (currentSubjectData.mcq > 0) {
-                headers += `<th class="border border-gray-300 p-3">MCQ (${currentSubjectData.mcq})</th>`;
-            }
-            if (currentSubjectData.practical > 0) {
-                headers += `<th class="border border-gray-300 p-3">Practical (${currentSubjectData.practical})</th>`;
-            }
-            headers += `<th class="border border-gray-300 p-3">Total (${currentSubjectData.total})</th>`;
-            
-            container.innerHTML = `
+            // Build table structure like the image
+            let tableHTML = `
                 <h3 class="text-xl font-bold text-gray-800 mb-4">
                     📊 Enter Marks for: ${actualSubject}
                     ${selectedSubject.includes('-') ? ` (${selectedSubject.split('-')[0]})` : ''}
                 </h3>
-                <table class="w-full border-collapse">
-                    <thead>
-                        <tr class="bg-blue-600 text-white">
-                            ${headers}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${filteredStudents.map(student => {
-                            const studentMarks = student.marks[actualSubject] || { written: 0, mcq: 0, practical: 0 };
-                            const total = (parseInt(studentMarks.written) || 0) + (parseInt(studentMarks.mcq) || 0) + (parseInt(studentMarks.practical) || 0);
-                            
-                            let cells = `
-                                <td class="border border-gray-300 p-3">${student.name}</td>
-                                <td class="border border-gray-300 p-3 text-center">${student.roll}</td>
-                                <td class="border border-gray-300 p-3 text-center">${student.branch}</td>
-                            `;
-                            
-                            if (selectedSubject.includes('-')) {
-                                cells += `<td class="border border-gray-300 p-3 text-center">${student.department}</td>`;
-                            }
-                            
-                            if (currentSubjectData.written > 0) {
-                                cells += `
-                                    <td class="border border-gray-300 p-3">
-                                        <input type="number" 
-                                               min="0" 
-                                               max="${currentSubjectData.written}" 
-                                               value="${studentMarks.written || 0}"
-                                               onchange="updateMarkField('${student.firestoreId}', '${actualSubject}', 'written', this.value, '${student.class}', '${student.branch}', '${student.department}')"
-                                               class="w-full border-2 border-gray-300 rounded px-3 py-2 text-center focus:border-blue-500 focus:outline-none">
-                                    </td>
-                                `;
-                            }
-                            
-                            if (currentSubjectData.mcq > 0) {
-                                cells += `
-                                    <td class="border border-gray-300 p-3">
-                                        <input type="number" 
-                                               min="0" 
-                                               max="${currentSubjectData.mcq}" 
-                                               value="${studentMarks.mcq || 0}"
-                                               onchange="updateMarkField('${student.firestoreId}', '${actualSubject}', 'mcq', this.value, '${student.class}', '${student.branch}', '${student.department}')"
-                                               class="w-full border-2 border-gray-300 rounded px-3 py-2 text-center focus:border-blue-500 focus:outline-none">
-                                    </td>
-                                `;
-                            }
-                            
-                            if (currentSubjectData.practical > 0) {
-                                cells += `
-                                    <td class="border border-gray-300 p-3">
-                                        <input type="number" 
-                                               min="0" 
-                                               max="${currentSubjectData.practical}" 
-                                               value="${studentMarks.practical || 0}"
-                                               onchange="updateMarkField('${student.firestoreId}', '${actualSubject}', 'practical', this.value, '${student.class}', '${student.branch}', '${student.department}')"
-                                               class="w-full border-2 border-gray-300 rounded px-3 py-2 text-center focus:border-blue-500 focus:outline-none">
-                                    </td>
-                                `;
-                            }
-                            
-                            cells += `<td class="border border-gray-300 p-3 text-center font-bold bg-gray-100">${total}</td>`;
-                            
-                            return `<tr class="hover:bg-gray-50">${cells}</tr>`;
-                        }).join('')}
-                    </tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-pink-200">
+                                <th rowspan="3" class="border border-gray-800 p-2 text-center" style="writing-mode: vertical-rl; transform: rotate(180deg);">ক্রমিক নম্বর</th>
+                                <th rowspan="3" class="border border-gray-800 p-2">বিষয়</th>
+                                <th rowspan="3" class="border border-gray-800 p-2 text-center" style="writing-mode: vertical-rl; transform: rotate(180deg);">বিষয়টির পূর্ণ মান</th>
+                                <th rowspan="3" class="border border-gray-800 p-2 text-center" style="writing-mode: vertical-rl; transform: rotate(180deg);">ধারাবাহিক মূল্যায়নে প্রাপ্ত নম্বর</th>
+                                <th colspan="10" class="border border-gray-800 p-2 text-center bg-pink-100">আসিক</th>
+                                <th colspan="8" class="border border-gray-800 p-2 text-center bg-pink-100">স্বাধিক</th>
+                                <th rowspan="3" class="border border-gray-800 p-2 text-center" style="writing-mode: vertical-rl; transform: rotate(180deg);">মন্তব্য</th>
+                            </tr>
+                            <tr class="bg-pink-200">
+                                <th colspan="5" class="border border-gray-800 p-1 text-center text-xs">ধারাবাহিক মূল্যায়নে প্রাপ্ত নম্বর</th>
+                                <th rowspan="2" class="border border-gray-800 p-1 text-center text-xs" style="writing-mode: vertical-rl; transform: rotate(180deg);">সামষ্টিক মূল্যায়নে শতকরা ১০% (প্রাপ্ত নম্বর × ১০/৬০)</th>
+                                <th rowspan="2" class="border border-gray-800 p-1 text-center text-xs" style="writing-mode: vertical-rl; transform: rotate(180deg);">ধারাবাহিক মূল্যায়নে শতকরা ৬০% (প্রাপ্ত নম্বর ও নম্বর)</th>
+                                <th colspan="3" class="border border-gray-800 p-1 text-center text-xs">ধারাবাহিক মূল্যায়নে প্রাপ্ত নম্বর</th>
+                                <th rowspan="2" class="border border-gray-800 p-1 text-center text-xs" style="writing-mode: vertical-rl; transform: rotate(180deg);">ব্যবহারিক</th>
+                                <th rowspan="2" class="border border-gray-800 p-1 text-center text-xs" style="writing-mode: vertical-rl; transform: rotate(180deg);">মূল সময়</th>
+                                <th rowspan="2" class="border border-gray-800 p-1 text-center text-xs" style="writing-mode: vertical-rl; transform: rotate(180deg);">ব্যবহারিক মূল্যায়ন</th>
+                                <th rowspan="2" class="border border-gray-800 p-1 text-center text-xs" style="writing-mode: vertical-rl; transform: rotate(180deg);">সামষ্টিক মূল্যায়নে শতকরা ১০% (প্রাপ্ত নম্বর × ১০/১০০)</th>
+                                <th rowspan="2" class="border border-gray-800 p-1 text-center text-xs" style="writing-mode: vertical-rl; transform: rotate(180deg);">নাম্বারের ভিত্তিতে ক্লাস রাঙ্ক (১-৪০)</th>
+                            </tr>
+                            <tr class="bg-pink-200">
+                                <th class="border border-gray-800 p-1 text-center text-xs">১ম কুইজ<br>(৫%)</th>
+                                <th class="border border-gray-800 p-1 text-center text-xs">১ম ক্লাস<br>টেস্ট<br>(৭%)</th>
+                                <th class="border border-gray-800 p-1 text-center text-xs">প্রাসঙ্গিক<br>ব্যবহারিক/<br>ভিতরের কাজ<br>(৮%)</th>
+                                <th class="border border-gray-800 p-1 text-center text-xs">বহুবিধ</th>
+                                <th class="border border-gray-800 p-1 text-center text-xs">২ম কুইজ<br>(১০%)</th>
+                                <th class="border border-gray-800 p-1 text-center text-xs">২ম ক্লাস<br>টেস্ট<br>(২০%)</th>
+                                <th class="border border-gray-800 p-1 text-center text-xs">ব্যবহারিক<br>মূল্যায়ন<br>(২০%)</th>
+                                <th class="border border-gray-800 p-1 text-center text-xs">সামষ্টিক মূল্যায়নে<br>শতকরা নম্বর<br>(৪০%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            
+            // Generate rows for each student
+            filteredStudents.forEach((student, index) => {
+                const studentMarks = student.marks[actualSubject] || { written: 0, mcq: 0, practical: 0 };
+                const total = (parseInt(studentMarks.written) || 0) + (parseInt(studentMarks.mcq) || 0) + (parseInt(studentMarks.practical) || 0);
+                
+                tableHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="border border-gray-800 p-2 text-center">${index + 1}</td>
+                        <td class="border border-gray-800 p-2">
+                            <div class="font-semibold">${student.name}</div>
+                            <div class="text-xs text-gray-600">Roll: ${student.roll} | Branch: ${student.branch}</div>
+                        </td>
+                        <td class="border border-gray-800 p-2 text-center">${currentSubjectData.total}</td>
+                        <td class="border border-gray-800 p-2 text-center">
+                            ${currentSubjectData.mcq > 0 ? `<input type="number" min="0" max="${currentSubjectData.mcq}" value="${studentMarks.mcq || 0}" 
+                                onchange="updateMarkField('${student.firestoreId}', '${actualSubject}', 'mcq', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-16 border border-gray-300 rounded px-2 py-1 text-center">` : ''}
+                        </td>
+                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
+                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
+                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
+                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
+                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
+                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
+                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
+                        <td class="border border-gray-800 p-2 text-center">
+                            ${currentSubjectData.written > 0 ? `<input type="number" min="0" max="${currentSubjectData.written}" value="${studentMarks.written || 0}" 
+                                onchange="updateMarkField('${student.firestoreId}', '${actualSubject}', 'written', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-16 border border-gray-300 rounded px-2 py-1 text-center">` : ''}
+                        </td>
+                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
+                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
+                        <td class="border border-gray-800 p-2 text-center">
+                            ${currentSubjectData.practical > 0 ? `<input type="number" min="0" max="${currentSubjectData.practical}" value="${studentMarks.practical || 0}" 
+                                onchange="updateMarkField('${student.firestoreId}', '${actualSubject}', 'practical', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-16 border border-gray-300 rounded px-2 py-1 text-center">` : '---'}
+                        </td>
+                        <td class="border border-gray-800 p-2 text-center font-bold">${total}</td>
+                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
+                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
+                        <td class="border border-gray-800 p-2 text-center"></td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                        </tbody>
+                    </table>
+                </div>
             `;
+            
+            container.innerHTML = tableHTML;
         }
 
         // Update Mark Field in Firestore
