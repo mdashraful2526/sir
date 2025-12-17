@@ -226,136 +226,136 @@
         let selectedClass = '';
         let selectedSubject = '';
 
-        // Subjects Configuration with detailed mark structure
+        // Subjects Configuration with detailed mark structure including all fields
         const subjects = {
             '6': [
-                { name: 'Bangla-1', total: 100, written: 80, mcq: 0, practical: 0 },
-                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25 }
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
             ],
             '7': [
-                { name: 'Bangla-1', total: 100, written: 80, mcq: 0, practical: 0 },
-                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25 }
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
             ],
             '8': [
-                { name: 'Bangla-1', total: 100, written: 80, mcq: 0, practical: 0 },
-                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25 }
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
             ],
             '9-Civil': [
-                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50 },
-                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25 }
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
             ],
             '9-Computer': [
-                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50 },
-                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25 }
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
             ],
             '9-Electrical': [
-                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50 },
-                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25 }
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
             ],
             '9-Mechanical': [
-                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50 },
-                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25 }
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
             ],
             '10-Civil': [
-                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50 },
-                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25 }
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
             ],
             '10-Computer': [
-                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50 },
-                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25 }
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
             ],
             '10-Electrical': [
-                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50 },
-                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25 }
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
             ],
             '10-Mechanical': [
-                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0 },
-                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50 },
-                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0 },
-                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25 }
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
             ]
         };
 
@@ -562,12 +562,18 @@
                 const subjectKey = student.class >= '9' ? `${student.class}-${student.department}` : student.class;
                 const marks = {};
                 
-                // Initialize marks with proper structure
+                // Initialize marks with proper structure including all fields
                 subjects[subjectKey]?.forEach(subject => {
                     marks[subject.name] = {
                         written: Math.floor(Math.random() * (subject.written * 0.3)) + (subject.written * 0.7),
                         mcq: subject.mcq > 0 ? Math.floor(Math.random() * (subject.mcq * 0.3)) + (subject.mcq * 0.7) : 0,
                         practical: subject.practical > 0 ? Math.floor(Math.random() * (subject.practical * 0.3)) + (subject.practical * 0.7) : 0,
+                        cont: subject.cont > 0 ? Math.floor(Math.random() * (subject.cont * 0.3)) + (subject.cont * 0.7) : 0,
+                        quiz1: 0,
+                        classTest1: 0,
+                        assignment: 0,
+                        quiz2: 0,
+                        classTest2: 0,
                         total: subject.total
                     };
                 });
@@ -1426,7 +1432,7 @@
             renderMarkTable();
         }
 
-        // Render Mark Entry Table with image format (ছবির মত)
+        // Render Simplified Mark Entry Table with all input fields
         function renderMarkTable() {
             const container = document.getElementById('markEntryTable');
             container.classList.remove('hidden');
@@ -1446,89 +1452,101 @@
 
             const actualSubject = selectedSubject.includes('-') ? selectedSubject.split('-').slice(1).join('-') : selectedSubject;
             
-            // Build table structure like the image
             let tableHTML = `
                 <h3 class="text-xl font-bold text-gray-800 mb-4">
                     📊 Enter Marks for: ${actualSubject}
                     ${selectedSubject.includes('-') ? ` (${selectedSubject.split('-')[0]})` : ''}
                 </h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full border-collapse text-sm">
+                <div class="overflow-x-auto bg-white p-4 rounded-lg shadow">
+                    <table class="w-full border-collapse text-xs">
                         <thead>
                             <tr class="bg-pink-200">
-                                <th rowspan="3" class="border border-gray-800 p-2 text-center" style="writing-mode: vertical-rl; transform: rotate(180deg);">ক্রমিক নম্বর</th>
-                                <th rowspan="3" class="border border-gray-800 p-2">বিষয়</th>
-                                <th rowspan="3" class="border border-gray-800 p-2 text-center" style="writing-mode: vertical-rl; transform: rotate(180deg);">বিষয়টির পূর্ণ মান</th>
-                                <th rowspan="3" class="border border-gray-800 p-2 text-center" style="writing-mode: vertical-rl; transform: rotate(180deg);">ধারাবাহিক মূল্যায়নে প্রাপ্ত নম্বর</th>
-                                <th colspan="10" class="border border-gray-800 p-2 text-center bg-pink-100">আসিক</th>
-                                <th colspan="8" class="border border-gray-800 p-2 text-center bg-pink-100">স্বাধিক</th>
-                                <th rowspan="3" class="border border-gray-800 p-2 text-center" style="writing-mode: vertical-rl; transform: rotate(180deg);">মন্তব্য</th>
+                                <th rowspan="2" class="border border-gray-800 p-2">Serial</th>
+                                <th rowspan="2" class="border border-gray-800 p-2">Student Name & Roll</th>
+                                <th rowspan="2" class="border border-gray-800 p-2">Total</th>
+                                <th colspan="5" class="border border-gray-800 p-2 text-center">Continuous Assessment (আসিক - 30%)</th>
+                                <th colspan="3" class="border border-gray-800 p-2 text-center">Summative (স্বাধিক - 70%)</th>
+                                <th rowspan="2" class="border border-gray-800 p-2">Final<br>Total</th>
                             </tr>
                             <tr class="bg-pink-200">
-                                <th colspan="5" class="border border-gray-800 p-1 text-center text-xs">ধারাবাহিক মূল্যায়নে প্রাপ্ত নম্বর</th>
-                                <th rowspan="2" class="border border-gray-800 p-1 text-center text-xs" style="writing-mode: vertical-rl; transform: rotate(180deg);">সামষ্টিক মূল্যায়নে শতকরা ১০% (প্রাপ্ত নম্বর × ১০/৬০)</th>
-                                <th rowspan="2" class="border border-gray-800 p-1 text-center text-xs" style="writing-mode: vertical-rl; transform: rotate(180deg);">ধারাবাহিক মূল্যায়নে শতকরা ৬০% (প্রাপ্ত নম্বর ও নম্বর)</th>
-                                <th colspan="3" class="border border-gray-800 p-1 text-center text-xs">ধারাবাহিক মূল্যায়নে প্রাপ্ত নম্বর</th>
-                                <th rowspan="2" class="border border-gray-800 p-1 text-center text-xs" style="writing-mode: vertical-rl; transform: rotate(180deg);">ব্যবহারিক</th>
-                                <th rowspan="2" class="border border-gray-800 p-1 text-center text-xs" style="writing-mode: vertical-rl; transform: rotate(180deg);">মূল সময়</th>
-                                <th rowspan="2" class="border border-gray-800 p-1 text-center text-xs" style="writing-mode: vertical-rl; transform: rotate(180deg);">ব্যবহারিক মূল্যায়ন</th>
-                                <th rowspan="2" class="border border-gray-800 p-1 text-center text-xs" style="writing-mode: vertical-rl; transform: rotate(180deg);">সামষ্টিক মূল্যায়নে শতকরা ১০% (প্রাপ্ত নম্বর × ১০/১০০)</th>
-                                <th rowspan="2" class="border border-gray-800 p-1 text-center text-xs" style="writing-mode: vertical-rl; transform: rotate(180deg);">নাম্বারের ভিত্তিতে ক্লাস রাঙ্ক (১-৪০)</th>
-                            </tr>
-                            <tr class="bg-pink-200">
-                                <th class="border border-gray-800 p-1 text-center text-xs">১ম কুইজ<br>(৫%)</th>
-                                <th class="border border-gray-800 p-1 text-center text-xs">১ম ক্লাস<br>টেস্ট<br>(৭%)</th>
-                                <th class="border border-gray-800 p-1 text-center text-xs">প্রাসঙ্গিক<br>ব্যবহারিক/<br>ভিতরের কাজ<br>(৮%)</th>
-                                <th class="border border-gray-800 p-1 text-center text-xs">বহুবিধ</th>
-                                <th class="border border-gray-800 p-1 text-center text-xs">২ম কুইজ<br>(১০%)</th>
-                                <th class="border border-gray-800 p-1 text-center text-xs">২ম ক্লাস<br>টেস্ট<br>(২০%)</th>
-                                <th class="border border-gray-800 p-1 text-center text-xs">ব্যবহারিক<br>মূল্যায়ন<br>(২০%)</th>
-                                <th class="border border-gray-800 p-1 text-center text-xs">সামষ্টিক মূল্যায়নে<br>শতকরা নম্বর<br>(৪০%)</th>
+                                <th class="border border-gray-800 p-1 text-center">Quiz1<br>(5%)</th>
+                                <th class="border border-gray-800 p-1 text-center">Test1<br>(7%)</th>
+                                <th class="border border-gray-800 p-1 text-center">Work<br>(8%)</th>
+                                <th class="border border-gray-800 p-1 text-center">Quiz2<br>(10%)</th>
+                                <th class="border border-gray-800 p-1 text-center">Cont<br>(${currentSubjectData.cont || 0})</th>
+                                <th class="border border-gray-800 p-1 text-center">Written<br>(${currentSubjectData.written})</th>
+                                <th class="border border-gray-800 p-1 text-center">MCQ<br>(${currentSubjectData.mcq})</th>
+                                <th class="border border-gray-800 p-1 text-center">Practical<br>(${currentSubjectData.practical})</th>
                             </tr>
                         </thead>
                         <tbody>`;
             
             // Generate rows for each student
             filteredStudents.forEach((student, index) => {
-                const studentMarks = student.marks[actualSubject] || { written: 0, mcq: 0, practical: 0 };
-                const total = (parseInt(studentMarks.written) || 0) + (parseInt(studentMarks.mcq) || 0) + (parseInt(studentMarks.practical) || 0);
+                const studentMarks = student.marks[actualSubject] || { 
+                    quiz1: 0, classTest1: 0, assignment: 0, quiz2: 0, cont: 0,
+                    written: 0, mcq: 0, practical: 0
+                };
+                
+                const total = (parseInt(studentMarks.written) || 0) + 
+                             (parseInt(studentMarks.mcq) || 0) + 
+                             (parseInt(studentMarks.practical) || 0) +
+                             (parseInt(studentMarks.cont) || 0);
                 
                 tableHTML += `
                     <tr class="hover:bg-gray-50">
                         <td class="border border-gray-800 p-2 text-center">${index + 1}</td>
                         <td class="border border-gray-800 p-2">
-                            <div class="font-semibold">${student.name}</div>
+                            <div class="font-semibold text-blue-900">${student.name}</div>
                             <div class="text-xs text-gray-600">Roll: ${student.roll} | Branch: ${student.branch}</div>
                         </td>
-                        <td class="border border-gray-800 p-2 text-center">${currentSubjectData.total}</td>
-                        <td class="border border-gray-800 p-2 text-center">
-                            ${currentSubjectData.mcq > 0 ? `<input type="number" min="0" max="${currentSubjectData.mcq}" value="${studentMarks.mcq || 0}" 
-                                onchange="updateMarkField('${student.firestoreId}', '${actualSubject}', 'mcq', this.value, '${student.class}', '${student.branch}', '${student.department}')"
-                                class="w-16 border border-gray-300 rounded px-2 py-1 text-center">` : ''}
+                        <td class="border border-gray-800 p-2 text-center font-bold">${currentSubjectData.total}</td>
+                        
+                        <!-- Continuous Assessment Inputs -->
+                        <td class="border border-gray-800 p-1">
+                            <input type="number" min="0" max="5" value="${studentMarks.quiz1 || 0}" 
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'quiz1', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-12 border border-gray-300 rounded px-1 py-1 text-center text-xs">
                         </td>
-                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
-                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
-                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
-                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
-                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
-                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
-                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
-                        <td class="border border-gray-800 p-2 text-center">
+                        <td class="border border-gray-800 p-1">
+                            <input type="number" min="0" max="7" value="${studentMarks.classTest1 || 0}" 
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'classTest1', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-12 border border-gray-300 rounded px-1 py-1 text-center text-xs">
+                        </td>
+                        <td class="border border-gray-800 p-1">
+                            <input type="number" min="0" max="8" value="${studentMarks.assignment || 0}" 
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'assignment', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-12 border border-gray-300 rounded px-1 py-1 text-center text-xs">
+                        </td>
+                        <td class="border border-gray-800 p-1">
+                            <input type="number" min="0" max="10" value="${studentMarks.quiz2 || 0}" 
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'quiz2', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-12 border border-gray-300 rounded px-1 py-1 text-center text-xs">
+                        </td>
+                        <td class="border border-gray-800 p-1">
+                            ${currentSubjectData.cont > 0 ? `<input type="number" min="0" max="${currentSubjectData.cont}" value="${studentMarks.cont || 0}" 
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'cont', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-12 border border-gray-300 rounded px-1 py-1 text-center text-xs">` : '---'}
+                        </td>
+                        
+                        <!-- Summative Assessment Inputs -->
+                        <td class="border border-gray-800 p-1">
                             ${currentSubjectData.written > 0 ? `<input type="number" min="0" max="${currentSubjectData.written}" value="${studentMarks.written || 0}" 
-                                onchange="updateMarkField('${student.firestoreId}', '${actualSubject}', 'written', this.value, '${student.class}', '${student.branch}', '${student.department}')"
-                                class="w-16 border border-gray-300 rounded px-2 py-1 text-center">` : ''}
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'written', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-14 border border-gray-300 rounded px-1 py-1 text-center text-xs font-semibold">` : ''}
                         </td>
-                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
-                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
-                        <td class="border border-gray-800 p-2 text-center">
+                        <td class="border border-gray-800 p-1">
+                            ${currentSubjectData.mcq > 0 ? `<input type="number" min="0" max="${currentSubjectData.mcq}" value="${studentMarks.mcq || 0}" 
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'mcq', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-14 border border-gray-300 rounded px-1 py-1 text-center text-xs font-semibold">` : ''}
+                        </td>
+                        <td class="border border-gray-800 p-1">
                             ${currentSubjectData.practical > 0 ? `<input type="number" min="0" max="${currentSubjectData.practical}" value="${studentMarks.practical || 0}" 
-                                onchange="updateMarkField('${student.firestoreId}', '${actualSubject}', 'practical', this.value, '${student.class}', '${student.branch}', '${student.department}')"
-                                class="w-16 border border-gray-300 rounded px-2 py-1 text-center">` : '---'}
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'practical', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-14 border border-gray-300 rounded px-1 py-1 text-center text-xs font-semibold">` : '---'}
                         </td>
-                        <td class="border border-gray-800 p-2 text-center font-bold">${total}</td>
-                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
-                        <td class="border border-gray-800 p-2 text-center bg-gray-100"></td>
-                        <td class="border border-gray-800 p-2 text-center"></td>
+                        
+                        <td class="border border-gray-800 p-2 text-center font-bold text-blue-900">${total}</td>
                     </tr>
                 `;
             });
@@ -1536,14 +1554,17 @@
             tableHTML += `
                         </tbody>
                     </table>
+                    <div class="mt-4 p-3 bg-blue-50 rounded">
+                        <p class="text-sm text-gray-700"><strong>Note:</strong> Enter marks in each column. The Final Total will calculate automatically.</p>
+                    </div>
                 </div>
             `;
             
             container.innerHTML = tableHTML;
         }
 
-        // Update Mark Field in Firestore
-        async function updateMarkField(firestoreId, subject, field, value, cls, branch, department) {
+        // Update Detailed Mark Field
+        async function updateDetailedMark(firestoreId, subject, field, value, cls, branch, department) {
             const collectionPath = cls >= '9' 
                 ? `students/class_${cls}/${department.toLowerCase()}`
                 : `students/class_${cls}/branch_${branch}`;
