@@ -11,27 +11,40 @@
             font-family: 'Hind Siliguri', Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-image: url('https://via.placeholder.com/800x1200/FFE4E4/FF9999?text=Pink+Gear+Background+with+Stars+and+Book'); /* পরে ভালো ব্যাকগ্রাউন্ড লিঙ্ক দিতে পারো */
+            background-color: #ffe4e4; /* লাইট পিঙ্ক ব্যাকগ্রাউন্ড */
+            background-image: url('https://www.creativefabrica.com/wp-content/uploads/2023/07/24/Vintage-Pink-Steampunk-Scrapbook-Papers-Graphics-75325182-1.jpg'); /* পিঙ্ক স্টিমপাঙ্ক গিয়ার প্যাটার্ন – অনেকটা অরিজিনালের মতো গিয়ার আছে */
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
             position: relative;
             max-width: 900px;
-            margin: auto;
-            border: 2px solid #ccc;
+            margin: 20px auto;
+            border: 2px solid #ddd;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         
-        .watermark {
+        .overlay-watermark {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            opacity: 0.1;
-            font-size: 100px;
+            opacity: 0.15; /* ওয়াটারমার্কের মতো ফেইড */
+            font-size: 120px;
             color: #ff9999;
             pointer-events: none;
-            z-index: -1;
+            z-index: 0;
+            text-align: center;
         }
         
+        .content {
+            position: relative;
+            z-index: 1;
+            background-color: rgba(255, 255, 255, 0.85); /* সামান্য সাদা ওভারলে যাতে টেক্সট পরিষ্কার দেখায় */
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        /* বাকি স্টাইল আগের মতোই */
         .header {
             display: flex;
             justify-content: space-between;
@@ -144,9 +157,13 @@
         
         @media print {
             body {
-                background: none; /* প্রিন্টে ব্যাকগ্রাউন্ড না নেয়া ভালো */
+                background-image: none;
+                background-color: white;
             }
-            .watermark {
+            .content {
+                background-color: white;
+            }
+            .overlay-watermark {
                 opacity: 0.05;
             }
         }
@@ -154,80 +171,87 @@
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="watermark">DTSC</div>
-    
-    <div class="header">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Government_Seal_of_Bangladesh.svg" alt="Bangladesh Emblem">
-        <div class="title">
-            <h1>Dumuria Govt. Technical School And College</h1>
-            <p>Dumuria, Khulna</p>
-            <h2>Test Exam-2025</h2>
-            <h2>Mark Sheet</h2>
-        </div>
-        <img src="https://file-khulna.portal.gov.bd/uploads/72fc6454-47f0-4caa-80ca-a74c31440b3c//668/aaa/b9b/668aaab9b9ecb614285182.jpg" alt="School Logo">
+    <div class="overlay-watermark">
+        <div style="font-size: 200px; line-height: 1;">⚙️</div>
+        <div>DTSC</div>
+        <div style="font-size: 150px;">⭐ ⭐ ⭐</div>
+        <div style="font-size: 180px; margin-top: -50px;">📖</div>
     </div>
     
-    <div class="info-section">
-        <div class="student-info">
-            <p>Student Name :</p>
-            <p>Father Name :</p>
-            <p>Mother Name :</p>
-            <p>Class :</p>
-            <p>Trade : Not Applicable</p>
-            <p>Roll Number :</p>
-            <p>Position :</p>
+    <div class="content">
+        <div class="header">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Government_Seal_of_Bangladesh.svg" alt="Bangladesh Emblem">
+            <div class="title">
+                <h1>Dumuria Govt. Technical School And College</h1>
+                <p>Dumuria, Khulna</p>
+                <h2>Test Exam-2025</h2>
+                <h2>Mark Sheet</h2>
+            </div>
+            <img src="https://file-khulna.portal.gov.bd/uploads/72fc6454-47f0-4caa-80ca-a74c31440b3c//668/aaa/b9b/668aaab9b9ecb614285182.jpg" alt="School Logo">
         </div>
         
-        <table class="grade-scale">
-            <tr><th>Marks</th><th>Letter Grade</th><th>GPA</th></tr>
-            <tr><td>80-100</td><td>A+</td><td>5.00</td></tr>
-            <tr><td>70-79</td><td>A</td><td>4.00</td></tr>
-            <tr><td>60-69</td><td>A-</td><td>3.50</td></tr>
-            <tr><td>50-59</td><td>B</td><td>3.00</td></tr>
-            <tr><td>40-49</td><td>C</td><td>2.00</td></tr>
-            <tr><td>33-39</td><td>D</td><td>1.00</td></tr>
-            <tr><td>00-32</td><td>F</td><td>0.00</td></tr>
+        <div class="info-section">
+            <div class="student-info">
+                <p>Student Name :</p>
+                <p>Father Name :</p>
+                <p>Mother Name :</p>
+                <p>Class :</p>
+                <p>Trade : Not Applicable</p>
+                <p>Roll Number :</p>
+                <p>Position :</p>
+            </div>
+            
+            <table class="grade-scale">
+                <tr><th>Marks</th><th>Letter Grade</th><th>GPA</th></tr>
+                <tr><td>80-100</td><td>A+</td><td>5.00</td></tr>
+                <tr><td>70-79</td><td>A</td><td>4.00</td></tr>
+                <tr><td>60-69</td><td>A-</td><td>3.50</td></tr>
+                <tr><td>50-59</td><td>B</td><td>3.00</td></tr>
+                <tr><td>40-49</td><td>C</td><td>2.00</td></tr>
+                <tr><td>33-39</td><td>D</td><td>1.00</td></tr>
+                <tr><td>00-32</td><td>F</td><td>0.00</td></tr>
+            </table>
+        </div>
+        
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">Subject</th>
+                    <th colspan="2">Total Marks</th>
+                    <th colspan="2">Obt. Marks</th>
+                    <th rowspan="2">Total Obt. Marks</th>
+                    <th rowspan="2">Letter Grade</th>
+                    <th rowspan="2">GPA</th>
+                    <th rowspan="2">Average GPA</th>
+                </tr>
+                <tr>
+                    <th>Final</th><th>Cont.</th><th>Final</th><th>Cont.</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Bangla-1</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>Bangla-2</td><td>30</td><td>20</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>English-1</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>English-2</td><td>30</td><td>20</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>Math</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>Science</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>BGS</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>Voc Engineering</td><td>80</td><td>20</td><td>—</td><td>50</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>Religion</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>ICT</td><td>25</td><td>—</td><td>—</td><td>25</td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
         </table>
-    </div>
-    
-    <table class="main-table">
-        <thead>
-            <tr>
-                <th rowspan="2">Subject</th>
-                <th colspan="2">Total Marks</th>
-                <th colspan="2">Obt. Marks</th>
-                <th rowspan="2">Total Obt. Marks</th>
-                <th rowspan="2">Letter Grade</th>
-                <th rowspan="2">GPA</th>
-                <th rowspan="2">Average GPA</th>
-            </tr>
-            <tr>
-                <th>Final</th><th>Cont.</th><th>Final</th><th>Cont.</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr><td>Bangla-1</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-            <tr><td>Bangla-2</td><td>30</td><td>20</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-            <tr><td>English-1</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-            <tr><td>English-2</td><td>30</td><td>20</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-            <tr><td>Math</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-            <tr><td>Science</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-            <tr><td>BGS</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-            <tr><td>Voc Engineering</td><td>80</td><td>20</td><td>—</td><td>50</td><td></td><td></td><td></td><td></td></tr>
-            <tr><td>Religion</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-            <tr><td>ICT</td><td>25</td><td>—</td><td>—</td><td>25</td><td></td><td></td><td></td><td></td></tr>
-        </tbody>
-    </table>
-    
-    <div class="opinions">
-        <p>Teachers Opinion: ______________________________ শিক্ষকের মতামত : ______________________________</p>
-        <p>Guardian Opinion: ______________________________</p>
-    </div>
-    
-    <div class="signatures">
-        <div class="signature"><div>Academic Incharge</div></div>
-        <div class="signature"><div>Head of Department</div></div>
-        <div class="signature"><div>Principal</div></div>
+        
+        <div class="opinions">
+            <p>Teachers Opinion: ________________________________ শিক্ষকের মতামত : ________________________________</p>
+            <p>Guardian Opinion: ________________________________</p>
+        </div>
+        
+        <div class="signatures">
+            <div class="signature"><div>Academic Incharge</div></div>
+            <div class="signature"><div>Head of Department</div></div>
+            <div class="signature"><div>Principal</div></div>
+        </div>
     </div>
 </body>
 </html>
