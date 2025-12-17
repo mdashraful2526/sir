@@ -722,12 +722,52 @@
             `).join('');
         }
 
+        // Calculate Grade
+        function calculateGrade(marks) {
+            if (marks >= 80) return { grade: 'A+', gpa: 5.00 };
+            if (marks >= 70) return { grade: 'A', gpa: 4.00 };
+            if (marks >= 60) return { grade: 'A-', gpa: 3.50 };
+            if (marks >= 50) return { grade: 'B', gpa: 3.00 };
+            if (marks >= 40) return { grade: 'C', gpa: 2.00 };
+            if (marks >= 33) return { grade: 'D', gpa: 1.00 };
+            return { grade: 'F', gpa: 0.00 };
+        }
+
         // Show Student Detail Modal
         function showStudentDetail(student) {
             const modal = document.getElementById('studentModal');
             const content = document.getElementById('modalContent');
             
-            const total = Object.values(student.marks).reduce((sum, mark) => sum + parseInt(mark || 0), 0);
+            const subjectKey = student.class >= '9' ? `${student.class}-${student.department}` : student.class;
+            const studentSubjects = subjects[subjectKey] || [];
+            
+            let totalMarks = 0;
+            let totalGPA = 0;
+            let subjectCount = 0;
+            
+            const resultRows = studentSubjects.map(subject => {
+                const mark = student.marks[subject.name] || { written: 0, mcq: 0, practical: 0 };
+                const obtained = (parseInt(mark.written) || 0) + (parseInt(mark.mcq) || 0) + (parseInt(mark.practical) || 0);
+                totalMarks += obtained;
+                const gradeInfo = calculateGrade(obtained);
+                totalGPA += gradeInfo.gpa;
+                subjectCount++;
+                
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="border border-gray-300 p-3">${subject.name}</td>
+                        <td class="border border-gray-300 p-3 text-center">${mark.written || 0}</td>
+                        <td class="border border-gray-300 p-3 text-center">${mark.mcq || 0}</td>
+                        <td class="border border-gray-300 p-3 text-center">${mark.practical || 0}</td>
+                        <td class="border border-gray-300 p-3 text-center font-bold">${obtained}</td>
+                        <td class="border border-gray-300 p-3 text-center">${subject.total}</td>
+                        <td class="border border-gray-300 p-3 text-center font-semibold">${gradeInfo.grade}</td>
+                        <td class="border border-gray-300 p-3 text-center">${gradeInfo.gpa.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            const avgGPA = subjectCount > 0 ? (totalGPA / subjectCount).toFixed(2) : '0.00';
             
             content.innerHTML = `
                 <div class="bg-blue-50 p-4 rounded-lg mb-4">
@@ -735,29 +775,35 @@
                     <p><strong>Father:</strong> ${student.fatherName} | <strong>Mother:</strong> ${student.motherName}</p>
                     <p><strong>Phone:</strong> ${student.phone}</p>
                     <p><strong>Roll:</strong> ${student.roll} | <strong>Class:</strong> ${student.class} | <strong>Branch:</strong> ${student.branch}</p>
-                    ${student.department ? `<p><strong>Department:</strong> ${student.department}</p>` : ''}
+                    ${student.department ? `<p><strong>Trade:</strong> ${student.department}</p>` : ''}
                 </div>
 
-                <table class="w-full border-collapse mb-4">
-                    <thead>
-                        <tr class="bg-blue-600 text-white">
-                            <th class="border border-gray-300 p-3">Subject</th>
-                            <th class="border border-gray-300 p-3">Marks</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${Object.entries(student.marks).map(([subject, mark]) => `
-                            <tr class="hover:bg-gray-50">
-                                <td class="border border-gray-300 p-3">${subject}</td>
-                                <td class="border border-gray-300 p-3 text-center font-semibold">${mark}</td>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse mb-4 text-sm">
+                        <thead>
+                            <tr class="bg-blue-600 text-white">
+                                <th class="border border-gray-300 p-2">Subject</th>
+                                <th class="border border-gray-300 p-2">Written</th>
+                                <th class="border border-gray-300 p-2">MCQ</th>
+                                <th class="border border-gray-300 p-2">Practical</th>
+                                <th class="border border-gray-300 p-2">Obtained</th>
+                                <th class="border border-gray-300 p-2">Total</th>
+                                <th class="border border-gray-300 p-2">Grade</th>
+                                <th class="border border-gray-300 p-2">GPA</th>
                             </tr>
-                        `).join('')}
-                        <tr class="bg-green-100 font-bold">
-                            <td class="border border-gray-300 p-3">TOTAL</td>
-                            <td class="border border-gray-300 p-3 text-center">${total}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            ${resultRows}
+                            <tr class="bg-green-100 font-bold">
+                                <td colspan="4" class="border border-gray-300 p-3 text-right">TOTAL:</td>
+                                <td class="border border-gray-300 p-3 text-center">${totalMarks}</td>
+                                <td class="border border-gray-300 p-3 text-center">${studentSubjects.reduce((sum, s) => sum + s.total, 0)}</td>
+                                <td class="border border-gray-300 p-3 text-center">-</td>
+                                <td class="border border-gray-300 p-3 text-center">${avgGPA}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
                 <button onclick='downloadPDF(${JSON.stringify(student)})' class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">
                     📥 Download Result PDF
@@ -771,79 +817,317 @@
             document.getElementById('studentModal').classList.add('hidden');
         }
 
-        // Download PDF
+        // Download Professional PDF Result Sheet
         function downloadPDF(student) {
             const subjectKey = student.class >= '9' ? `${student.class}-${student.department}` : student.class;
             const studentSubjects = subjects[subjectKey] || [];
-            const total = Object.values(student.marks).reduce((sum, mark) => sum + parseInt(mark || 0), 0);
+            
+            let totalObtained = 0;
+            let totalFull = 0;
+            let totalGPA = 0;
+            let subjectCount = 0;
+            
+            const resultRows = studentSubjects.map(subject => {
+                const mark = student.marks[subject.name] || { written: 0, mcq: 0, practical: 0 };
+                const obtained = (parseInt(mark.written) || 0) + (parseInt(mark.mcq) || 0) + (parseInt(mark.practical) || 0);
+                totalObtained += obtained;
+                totalFull += subject.total;
+                const gradeInfo = calculateGrade(obtained);
+                totalGPA += gradeInfo.gpa;
+                subjectCount++;
+                
+                const writtenCell = subject.written > 0 ? `<td style="border: 1px solid #000; padding: 6px; text-align: center;">${mark.written || 0}</td>` : '';
+                const mcqCell = subject.mcq > 0 ? `<td style="border: 1px solid #000; padding: 6px; text-align: center;">${mark.mcq || 0}</td>` : '';
+                const practicalCell = subject.practical > 0 ? `<td style="border: 1px solid #000; padding: 6px; text-align: center;">${mark.practical || 0}</td>` : '';
+                
+                return `
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: left;">${subject.name}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${subject.written || ''}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${subject.mcq || ''}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${subject.practical > 0 ? subject.practical : '-----'}</td>
+                        ${writtenCell}
+                        ${mcqCell}
+                        ${practicalCell}
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">${obtained}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${subject.total}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">${gradeInfo.grade}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${gradeInfo.gpa.toFixed(2)}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${gradeInfo.gpa.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            const avgGPA = subjectCount > 0 ? (totalGPA / subjectCount).toFixed(2) : '0.00';
             
             const pdfHTML = `<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <style>
-        @page { size: A4 landscape; margin: 20mm; }
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-        .header { text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 15px; margin-bottom: 20px; }
-        .header h1 { color: #1e40af; margin: 5px 0; font-size: 28px; }
-        .header h2 { color: #4b5563; margin: 5px 0; font-size: 18px; }
-        .info { display: flex; justify-content: space-between; margin: 20px 0; padding: 15px; background: #f3f4f6; border-radius: 8px; }
-        .info-item { margin: 5px 0; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 2px solid #2563eb; padding: 12px; text-align: center; }
-        th { background: #2563eb; color: white; font-size: 16px; }
-        tr:nth-child(even) { background: #eff6ff; }
-        .total { font-weight: bold; background: #dbeafe !important; font-size: 18px; }
-        .footer { margin-top: 30px; text-align: center; color: #6b7280; }
+        @page { size: A4 portrait; margin: 10mm; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            margin: 0; 
+            padding: 15px;
+            font-size: 11px;
+        }
+        .container {
+            border: 3px dashed #333;
+            padding: 15px;
+            position: relative;
+        }
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 80px;
+            color: rgba(255, 0, 0, 0.1);
+            font-weight: bold;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        .logo {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .header-center {
+            text-align: center;
+            flex: 1;
+        }
+        .header-center h1 {
+            margin: 0;
+            font-size: 18px;
+            color: #1e40af;
+            font-weight: bold;
+        }
+        .header-center p {
+            margin: 3px 0;
+            font-size: 11px;
+            color: #333;
+        }
+        .header-center .marksheet {
+            color: #059669;
+            font-weight: bold;
+            text-decoration: underline;
+            margin-top: 5px;
+        }
+        .student-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            position: relative;
+            z-index: 1;
+        }
+        .info-left {
+            flex: 1;
+        }
+        .info-left p {
+            margin: 5px 0;
+            font-size: 11px;
+        }
+        .info-right {
+            width: 180px;
+            border: 1px solid #000;
+            padding: 5px;
+        }
+        .info-right table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+        }
+        .info-right td {
+            border: 1px solid #000;
+            padding: 3px;
+            text-align: center;
+        }
+        .position-box {
+            position: absolute;
+            right: 200px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 2px solid #000;
+            padding: 8px 15px;
+            background: white;
+            font-weight: bold;
+        }
+        .marks-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        .marks-table th, .marks-table td {
+            border: 1px solid #000;
+            padding: 6px;
+            text-align: center;
+        }
+        .marks-table th {
+            background-color: #ffb6c1;
+            font-weight: bold;
+            font-size: 9px;
+        }
+        .marks-table .subject-header {
+            background-color: #ffb6c1;
+            font-weight: bold;
+            text-align: center;
+        }
+        .opinion-section {
+            margin: 20px 0;
+            position: relative;
+            z-index: 1;
+        }
+        .opinion-box {
+            border: 1px solid #000;
+            padding: 8px;
+            margin: 10px 0;
+            min-height: 40px;
+        }
+        .opinion-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        .signature-box {
+            text-align: center;
+            flex: 1;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 40px;
+            padding-top: 5px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🎓 Dumuria Government Technical School & College</h1>
-        <h2>Academic Result Sheet</h2>
-    </div>
-    
-    <div class="info">
-        <div>
-            <div class="info-item"><strong>Student Name:</strong> ${student.name}</div>
-            <div class="info-item"><strong>Father Name:</strong> ${student.fatherName}</div>
-            <div class="info-item"><strong>Mother Name:</strong> ${student.motherName}</div>
+    <div class="container">
+        <div class="watermark">Dumuria GTSC 2025</div>
+        
+        <div class="header">
+            <div class="logo">
+                🇧🇩<br>Logo
+            </div>
+            <div class="header-center">
+                <h1>Dumuria Govt. Technical School And College</h1>
+                <p>Dumuria, Khulna</p>
+                <p><strong>Test Exam-2025</strong></p>
+                <p class="marksheet">Mark Sheet</p>
+            </div>
+            <div class="logo">
+                ⚙️<br>GTSC
+            </div>
         </div>
-        <div>
-            <div class="info-item"><strong>Roll Number:</strong> ${student.roll}</div>
-            <div class="info-item"><strong>Class:</strong> ${student.class} | <strong>Branch:</strong> ${student.branch}</div>
-            ${student.department ? `<div class="info-item"><strong>Department:</strong> ${student.department}</div>` : ''}
-            <div class="info-item"><strong>Phone:</strong> ${student.phone}</div>
+
+        <div class="student-info">
+            <div class="info-left">
+                <p><strong>Student Name :</strong> ${student.name}</p>
+                <p><strong>Father Name :</strong> ${student.fatherName}</p>
+                <p><strong>Mother Name :</strong> ${student.motherName}</p>
+                <p><strong>Class :</strong> ${student.class}</p>
+                <p><strong>Trade :</strong> ${student.department || 'Not Applicable'}</p>
+                <p><strong>Roll Number :</strong> ${student.roll}</p>
+                <div class="position-box">Position : ___</div>
+            </div>
+            <div class="info-right">
+                <table>
+                    <tr><td>80-100</td><td>A+</td><td>5.00</td></tr>
+                    <tr><td>70-79</td><td>A</td><td>4.00</td></tr>
+                    <tr><td>60-69</td><td>A-</td><td>3.50</td></tr>
+                    <tr><td>50-59</td><td>B</td><td>3.00</td></tr>
+                    <tr><td>40-49</td><td>C</td><td>2.00</td></tr>
+                    <tr><td>33-39</td><td>D</td><td>1.00</td></tr>
+                    <tr><td>00-32</td><td>F</td><td>0.00</td></tr>
+                </table>
+            </div>
         </div>
-    </div>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Subject</th>
-                <th>Marks Obtained</th>
-                <th>Total Marks</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${studentSubjects.map(subject => `
+
+        <table class="marks-table">
+            <thead>
                 <tr>
-                    <td>${subject}</td>
-                    <td>${student.marks[subject] || 0}</td>
-                    <td>100</td>
+                    <th rowspan="3">Subject</th>
+                    <th colspan="3" class="subject-header">Total Marks</th>
+                    <th colspan="3" class="subject-header">Obt. Marks</th>
+                    <th rowspan="3">Total Obt.<br>Marks</th>
+                    <th rowspan="3">Total<br>Marks</th>
+                    <th rowspan="3">Letter<br>Grade</th>
+                    <th rowspan="3">GPA</th>
+                    <th rowspan="3">Average<br>GPA</th>
                 </tr>
-            `).join('')}
-            <tr class="total">
-                <td>TOTAL</td>
-                <td>${total}</td>
-                <td>${studentSubjects.length * 100}</td>
-            </tr>
-        </tbody>
-    </table>
-    
-    <div class="footer">
-        <p>Generated on ${new Date().toLocaleDateString()}</p>
-        <p>This is a computer-generated document</p>
+                <tr>
+                    <th colspan="2" style="background-color: #ffb6c1;">ধারাবাহিক মূল্যায়নে প্রাপ্ত নম্বর</th>
+                    <th rowspan="2" style="background-color: #ffb6c1;">ব্যবহারিক<br>পরীক্ষা</th>
+                    <th colspan="2" style="background-color: #ffb6c1;">ধারাবাহিক মূল্যায়নে প্রাপ্ত নম্বর</th>
+                    <th rowspan="2" style="background-color: #ffb6c1;">ব্যবহারিক<br>পরীক্ষা</th>
+                </tr>
+                <tr>
+                    <th style="background-color: #ffb6c1;">Final</th>
+                    <th style="background-color: #ffb6c1;">Cont.</th>
+                    <th style="background-color: #ffb6c1;">Final</th>
+                    <th style="background-color: #ffb6c1;">Cont.</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${resultRows}
+                <tr style="background-color: #90EE90; font-weight: bold;">
+                    <td colspan="7" style="text-align: right; padding-right: 10px;">TOTAL MARKS:</td>
+                    <td>${totalObtained}</td>
+                    <td>${totalFull}</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>${avgGPA}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="opinion-section">
+            <div class="opinion-box">
+                <strong>Teachers Opinion:</strong>
+                _____________________________________________
+            </div>
+            <div class="opinion-box">
+                <strong>Guardian Opinion:</strong>
+                _____________________________________________
+            </div>
+        </div>
+
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line">Academic Incharge</div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line">Head of Department</div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line">Principal</div>
+            </div>
+        </div>
     </div>
 </body>
 </html>`;
@@ -852,7 +1136,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Result_${student.name}_Class${student.class}${student.branch}.html`;
+            a.download = `MarkSheet_${student.name}_Class${student.class}_Roll${student.roll}.html`;
             a.click();
         }
 
