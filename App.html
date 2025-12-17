@@ -1,100 +1,173 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mark Sheet</title>
+    <title>Mark Sheet - Dumuria Govt. Technical School And College</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap');
+        
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Hind Siliguri', Arial, sans-serif;
+            margin: 0;
             padding: 20px;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            max-width: 800px;
+            background-image: url('https://via.placeholder.com/800x1200/FFE4E4/FF9999?text=Pink+Gear+Background+with+Stars+and+Book'); /* পরে ভালো ব্যাকগ্রাউন্ড লিঙ্ক দিতে পারো */
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            max-width: 900px;
             margin: auto;
+            border: 2px solid #ccc;
         }
+        
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.1;
+            font-size: 100px;
+            color: #ff9999;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             text-align: center;
+            margin-bottom: 20px;
         }
+        
         .header img {
-            width: 100px;
+            width: 120px;
             height: auto;
         }
+        
         .title {
             flex: 1;
+            text-align: center;
         }
+        
         .title h1 {
             margin: 0;
-            font-size: 18px;
+            font-size: 24px;
+            color: #003366;
         }
+        
+        .title p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        
         .title h2 {
-            margin: 0;
-            font-size: 14px;
+            margin: 5px 0;
+            font-size: 18px;
             color: green;
         }
-        .info {
+        
+        .info-section {
             display: flex;
             justify-content: space-between;
-            margin-top: 20px;
+            margin-bottom: 20px;
         }
+        
         .student-info {
             width: 60%;
         }
-        .grade-table {
-            width: 30%;
-            border-collapse: collapse;
+        
+        .student-info p {
+            margin: 8px 0;
+            font-size: 14px;
         }
-        .grade-table th, .grade-table td {
+        
+        .grade-scale {
+            width: 35%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        
+        .grade-scale th, .grade-scale td {
             border: 1px solid #000;
-            padding: 5px;
+            padding: 6px;
             text-align: center;
         }
-        .main-table {
+        
+        .grade-scale th {
+            background-color: #f0f0f0;
+        }
+        
+        table.main-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            font-size: 13px;
         }
+        
         .main-table th, .main-table td {
             border: 1px solid #000;
-            padding: 5px;
+            padding: 6px;
             text-align: center;
         }
-        .opinions {
-            margin-top: 20px;
+        
+        .main-table th {
+            background-color: #e0e0e0;
         }
+        
+        .opinions {
+            margin-top: 40px;
+            font-size: 14px;
+        }
+        
+        .opinions p {
+            margin: 20px 0;
+        }
+        
         .signatures {
             display: flex;
-            justify-content: space-between;
-            margin-top: 40px;
+            justify-content: space-around;
+            margin-top: 60px;
+            font-size: 14px;
         }
+        
         .signature {
-            border-top: 1px solid #000;
-            width: 30%;
             text-align: center;
+            width: 30%;
         }
-        /* Add pink gear background simulation if desired, but keeping simple */
-        .gear-bg {
-            background-color: #ffdede; /* Light pink */
+        
+        .signature div {
+            border-top: 1px solid #000;
+            padding-top: 10px;
+            margin-top: 50px;
+        }
+        
+        @media print {
+            body {
+                background: none; /* প্রিন্টে ব্যাকগ্রাউন্ড না নেয়া ভালো */
+            }
+            .watermark {
+                opacity: 0.05;
+            }
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
 </head>
-<body class="gear-bg">
+<body>
+    <div class="watermark">DTSC</div>
+    
     <div class="header">
-        <img src="https://www.shutterstock.com/image-vector/republic-bangladesh-logo-design-illustration-600nw-2576751737.jpg" alt="Bangladesh Emblem">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Government_Seal_of_Bangladesh.svg" alt="Bangladesh Emblem">
         <div class="title">
             <h1>Dumuria Govt. Technical School And College</h1>
             <p>Dumuria, Khulna</p>
-            <h2>Test Exam 2025</h2>
+            <h2>Test Exam-2025</h2>
             <h2>Mark Sheet</h2>
         </div>
         <img src="https://file-khulna.portal.gov.bd/uploads/72fc6454-47f0-4caa-80ca-a74c31440b3c//668/aaa/b9b/668aaab9b9ecb614285182.jpg" alt="School Logo">
     </div>
-
-    <div class="info">
+    
+    <div class="info-section">
         <div class="student-info">
             <p>Student Name :</p>
             <p>Father Name :</p>
@@ -104,191 +177,57 @@
             <p>Roll Number :</p>
             <p>Position :</p>
         </div>
-        <table class="grade-table">
-            <tr>
-                <th>80-100</th>
-                <th>A+</th>
-                <th>5.00</th>
-            </tr>
-            <tr>
-                <td>70-79</td>
-                <td>A</td>
-                <td>4.00</td>
-            </tr>
-            <tr>
-                <td>60-69</td>
-                <td>A-</td>
-                <td>3.50</td>
-            </tr>
-            <tr>
-                <td>50-59</td>
-                <td>B</td>
-                <td>3.00</td>
-            </tr>
-            <tr>
-                <td>40-49</td>
-                <td>C</td>
-                <td>2.00</td>
-            </tr>
-            <tr>
-                <td>33-39</td>
-                <td>D</td>
-                <td>1.00</td>
-            </tr>
-            <tr>
-                <td>00-32</td>
-                <td>F</td>
-                <td>0.00</td>
-            </tr>
+        
+        <table class="grade-scale">
+            <tr><th>Marks</th><th>Letter Grade</th><th>GPA</th></tr>
+            <tr><td>80-100</td><td>A+</td><td>5.00</td></tr>
+            <tr><td>70-79</td><td>A</td><td>4.00</td></tr>
+            <tr><td>60-69</td><td>A-</td><td>3.50</td></tr>
+            <tr><td>50-59</td><td>B</td><td>3.00</td></tr>
+            <tr><td>40-49</td><td>C</td><td>2.00</td></tr>
+            <tr><td>33-39</td><td>D</td><td>1.00</td></tr>
+            <tr><td>00-32</td><td>F</td><td>0.00</td></tr>
         </table>
     </div>
-
+    
     <table class="main-table">
         <thead>
             <tr>
-                <th>Subject</th>
+                <th rowspan="2">Subject</th>
                 <th colspan="2">Total Marks</th>
                 <th colspan="2">Obt. Marks</th>
-                <th>Total Obt. Marks</th>
-                <th>Letter Grade</th>
-                <th>Average GPA</th>
-                <th>GPA</th>
+                <th rowspan="2">Total Obt. Marks</th>
+                <th rowspan="2">Letter Grade</th>
+                <th rowspan="2">GPA</th>
+                <th rowspan="2">Average GPA</th>
             </tr>
             <tr>
-                <th></th>
-                <th>Final</th>
-                <th>Cont.</th>
-                <th>Final</th>
-                <th>Cont.</th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
+                <th>Final</th><th>Cont.</th><th>Final</th><th>Cont.</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>Bangla-1</td>
-                <td>60</td>
-                <td>40</td>
-                <td>—</td>
-                <td>—</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>Bangla-2</td>
-                <td>30</td>
-                <td>20</td>
-                <td>—</td>
-                <td>—</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>English-1</td>
-                <td>60</td>
-                <td>40</td>
-                <td>—</td>
-                <td>—</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>English-2</td>
-                <td>30</td>
-                <td>20</td>
-                <td>—</td>
-                <td>—</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>Math</td>
-                <td>60</td>
-                <td>40</td>
-                <td>—</td>
-                <td>—</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>Science</td>
-                <td>60</td>
-                <td>40</td>
-                <td>—</td>
-                <td>—</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>BGS</td>
-                <td>60</td>
-                <td>40</td>
-                <td>—</td>
-                <td>—</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>Voc Engineering</td>
-                <td>80</td>
-                <td>20</td>
-                <td>—</td>
-                <td>50</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>Religion</td>
-                <td>60</td>
-                <td>40</td>
-                <td>—</td>
-                <td>—</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>ICT</td>
-                <td>25</td>
-                <td>—</td>
-                <td>—</td>
-                <td>25</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
+            <tr><td>Bangla-1</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Bangla-2</td><td>30</td><td>20</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>English-1</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>English-2</td><td>30</td><td>20</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Math</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Science</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>BGS</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Voc Engineering</td><td>80</td><td>20</td><td>—</td><td>50</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Religion</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>ICT</td><td>25</td><td>—</td><td>—</td><td>25</td><td></td><td></td><td></td><td></td></tr>
         </tbody>
     </table>
-
+    
     <div class="opinions">
-        <p>Teachers Opinion: শিক্ষকের মতামত :</p>
-        <p>Guardian Opinion:</p>
+        <p>Teachers Opinion: ______________________________ শিক্ষকের মতামত : ______________________________</p>
+        <p>Guardian Opinion: ______________________________</p>
     </div>
-
+    
     <div class="signatures">
-        <div class="signature">Academic Incharge</div>
-        <div class="signature">Head of Department</div>
-        <div class="signature">Principal</div>
+        <div class="signature"><div>Academic Incharge</div></div>
+        <div class="signature"><div>Head of Department</div></div>
+        <div class="signature"><div>Principal</div></div>
     </div>
 </body>
 </html>
