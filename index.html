@@ -829,6 +829,10 @@
             
             const resultRows = studentSubjects.map(subject => {
                 const mark = student.marks[subject.name] || { written: 0, mcq: 0, practical: 0 };
+                const finalMarks = subject.written > 0 ? (mark.written || 0) : '';
+                const contMarks = subject.mcq > 0 ? (mark.mcq || 0) : '';
+                const practicalMarks = subject.practical > 0 ? (mark.practical || 0) : '-----';
+                
                 const obtained = (parseInt(mark.written) || 0) + (parseInt(mark.mcq) || 0) + (parseInt(mark.practical) || 0);
                 totalObtained += obtained;
                 totalFull += subject.total;
@@ -836,24 +840,20 @@
                 totalGPA += gradeInfo.gpa;
                 subjectCount++;
                 
-                const writtenCell = subject.written > 0 ? `<td style="border: 1px solid #000; padding: 6px; text-align: center;">${mark.written || 0}</td>` : '';
-                const mcqCell = subject.mcq > 0 ? `<td style="border: 1px solid #000; padding: 6px; text-align: center;">${mark.mcq || 0}</td>` : '';
-                const practicalCell = subject.practical > 0 ? `<td style="border: 1px solid #000; padding: 6px; text-align: center;">${mark.practical || 0}</td>` : '';
-                
                 return `
                     <tr>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: left;">${subject.name}</td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${subject.written || ''}</td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${subject.mcq || ''}</td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${subject.practical > 0 ? subject.practical : '-----'}</td>
-                        ${writtenCell}
-                        ${mcqCell}
-                        ${practicalCell}
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">${obtained}</td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${subject.total}</td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">${gradeInfo.grade}</td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${gradeInfo.gpa.toFixed(2)}</td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${gradeInfo.gpa.toFixed(2)}</td>
+                        <td style="border: 1px solid #000; padding: 5px 8px; text-align: left; font-size: 10px;">${subject.name}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 9px;">${subject.written || ''}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 9px;">${subject.mcq || ''}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 9px;">${subject.practical || '-----'}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 10px;">${finalMarks}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 10px;">${contMarks}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 10px;">${practicalMarks}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-weight: bold; font-size: 10px;">${obtained}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 10px;">${subject.total}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-weight: bold; font-size: 10px; background-color: #ffe6e6;">${gradeInfo.grade}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 10px; background-color: #e6f7ff;">${gradeInfo.gpa.toFixed(2)}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 10px; background-color: #fff4e6;">${gradeInfo.gpa.toFixed(2)}</td>
                     </tr>
                 `;
             }).join('');
@@ -865,152 +865,165 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        @page { size: A4 portrait; margin: 10mm; }
+        @page { size: A4 portrait; margin: 8mm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: 'Arial', sans-serif; 
-            margin: 0; 
-            padding: 15px;
-            font-size: 11px;
+            font-family: 'Arial', 'Segoe UI', sans-serif; 
+            font-size: 10px;
+            line-height: 1.3;
         }
         .container {
-            border: 3px dashed #333;
-            padding: 15px;
+            width: 100%;
+            max-width: 210mm;
+            margin: 0 auto;
+            border: 2px dashed #333;
+            padding: 12px;
             position: relative;
+            background: white;
         }
         .watermark {
             position: absolute;
-            top: 50%;
+            top: 45%;
             left: 50%;
-            transform: translate(-50%, -50%) rotate(-30deg);
-            font-size: 80px;
-            color: rgba(255, 0, 0, 0.1);
+            transform: translate(-50%, -50%) rotate(-25deg);
+            font-size: 60px;
+            color: rgba(255, 105, 180, 0.08);
             font-weight: bold;
             z-index: 0;
-            pointer-events: none;
+            white-space: nowrap;
         }
         .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
             position: relative;
             z-index: 1;
         }
         .logo {
-            width: 60px;
-            height: 60px;
-            border: 2px solid #000;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #1e40af;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
-            font-weight: bold;
+            font-size: 20px;
+            flex-shrink: 0;
         }
         .header-center {
             text-align: center;
             flex: 1;
+            padding: 0 15px;
         }
         .header-center h1 {
-            margin: 0;
-            font-size: 18px;
+            font-size: 16px;
             color: #1e40af;
             font-weight: bold;
+            margin-bottom: 2px;
         }
         .header-center p {
-            margin: 3px 0;
-            font-size: 11px;
+            font-size: 9px;
             color: #333;
+            margin: 1px 0;
         }
         .header-center .marksheet {
             color: #059669;
             font-weight: bold;
             text-decoration: underline;
-            margin-top: 5px;
+            font-size: 10px;
+            margin-top: 3px;
         }
         .student-info {
             display: flex;
             justify-content: space-between;
-            margin: 15px 0;
+            margin: 10px 0;
             position: relative;
             z-index: 1;
         }
         .info-left {
             flex: 1;
+            padding-right: 20px;
         }
         .info-left p {
-            margin: 5px 0;
-            font-size: 11px;
+            font-size: 9px;
+            margin: 3px 0;
+            line-height: 1.4;
         }
         .info-right {
-            width: 180px;
+            width: 140px;
             border: 1px solid #000;
-            padding: 5px;
+            padding: 3px;
+            flex-shrink: 0;
         }
         .info-right table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 10px;
         }
         .info-right td {
             border: 1px solid #000;
-            padding: 3px;
+            padding: 2px;
             text-align: center;
+            font-size: 8px;
         }
         .position-box {
             position: absolute;
-            right: 200px;
-            top: 50%;
-            transform: translateY(-50%);
-            border: 2px solid #000;
-            padding: 8px 15px;
+            right: 150px;
+            top: 15px;
+            border: 1.5px solid #000;
+            padding: 5px 12px;
             background: white;
             font-weight: bold;
+            font-size: 9px;
         }
         .marks-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 15px 0;
-            font-size: 10px;
+            margin: 10px 0;
             position: relative;
             z-index: 1;
         }
         .marks-table th, .marks-table td {
             border: 1px solid #000;
-            padding: 6px;
+            padding: 4px 3px;
             text-align: center;
+            font-size: 8px;
+            line-height: 1.2;
         }
         .marks-table th {
             background-color: #ffb6c1;
             font-weight: bold;
-            font-size: 9px;
         }
-        .marks-table .subject-header {
-            background-color: #ffb6c1;
+        .marks-table td:first-child {
+            text-align: left;
+            padding-left: 5px;
+        }
+        .total-row {
+            background-color: #90EE90 !important;
             font-weight: bold;
-            text-align: center;
         }
         .opinion-section {
-            margin: 20px 0;
+            margin: 12px 0;
             position: relative;
             z-index: 1;
         }
         .opinion-box {
             border: 1px solid #000;
-            padding: 8px;
-            margin: 10px 0;
-            min-height: 40px;
+            padding: 6px;
+            margin: 6px 0;
+            min-height: 35px;
+            font-size: 9px;
         }
         .opinion-box strong {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
         .signature-section {
             display: flex;
             justify-content: space-between;
-            margin-top: 30px;
+            margin-top: 20px;
             position: relative;
             z-index: 1;
         }
@@ -1020,29 +1033,26 @@
         }
         .signature-line {
             border-top: 1px solid #000;
-            margin-top: 40px;
-            padding-top: 5px;
+            margin-top: 30px;
+            padding-top: 4px;
             font-weight: bold;
+            font-size: 9px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="watermark">Dumuria GTSC 2025</div>
+        <div class="watermark">ডুমুরিয়া সরকারি কলেজ ২০২৫</div>
         
         <div class="header">
-            <div class="logo">
-                🇧🇩<br>Logo
-            </div>
+            <div class="logo">🇧🇩</div>
             <div class="header-center">
                 <h1>Dumuria Govt. Technical School And College</h1>
                 <p>Dumuria, Khulna</p>
                 <p><strong>Test Exam-2025</strong></p>
                 <p class="marksheet">Mark Sheet</p>
             </div>
-            <div class="logo">
-                ⚙️<br>GTSC
-            </div>
+            <div class="logo">⚙️</div>
         </div>
 
         <div class="student-info">
@@ -1071,37 +1081,37 @@
         <table class="marks-table">
             <thead>
                 <tr>
-                    <th rowspan="3">Subject</th>
-                    <th colspan="3" class="subject-header">Total Marks</th>
-                    <th colspan="3" class="subject-header">Obt. Marks</th>
-                    <th rowspan="3">Total Obt.<br>Marks</th>
-                    <th rowspan="3">Total<br>Marks</th>
-                    <th rowspan="3">Letter<br>Grade</th>
-                    <th rowspan="3">GPA</th>
-                    <th rowspan="3">Average<br>GPA</th>
+                    <th rowspan="3" style="width: 80px;">Subject</th>
+                    <th colspan="3">Total Marks</th>
+                    <th colspan="3">Obt. Marks</th>
+                    <th rowspan="3" style="width: 40px;">Total<br>Obt.<br>Marks</th>
+                    <th rowspan="3" style="width: 40px;">Total<br>Marks</th>
+                    <th rowspan="3" style="width: 40px;">Letter<br>Grade</th>
+                    <th rowspan="3" style="width: 35px;">GPA</th>
+                    <th rowspan="3" style="width: 40px;">Average<br>GPA</th>
                 </tr>
                 <tr>
-                    <th colspan="2" style="background-color: #ffb6c1;">ধারাবাহিক মূল্যায়নে প্রাপ্ত নম্বর</th>
-                    <th rowspan="2" style="background-color: #ffb6c1;">ব্যবহারিক<br>পরীক্ষা</th>
-                    <th colspan="2" style="background-color: #ffb6c1;">ধারাবাহিক মূল্যায়নে প্রাপ্ত নম্বর</th>
-                    <th rowspan="2" style="background-color: #ffb6c1;">ব্যবহারিক<br>পরীক্ষা</th>
+                    <th colspan="2" style="font-size: 7px;">ধারাবাহিক মূল্যায়নে<br>প্রাপ্ত নম্বর</th>
+                    <th rowspan="2" style="font-size: 7px; width: 35px;">ব্যবহারিক<br>পরীক্ষা</th>
+                    <th colspan="2" style="font-size: 7px;">ধারাবাহিক মূল্যায়নে<br>প্রাপ্ত নম্বর</th>
+                    <th rowspan="2" style="font-size: 7px; width: 35px;">ব্যবহারিক<br>পরীক্ষা</th>
                 </tr>
                 <tr>
-                    <th style="background-color: #ffb6c1;">Final</th>
-                    <th style="background-color: #ffb6c1;">Cont.</th>
-                    <th style="background-color: #ffb6c1;">Final</th>
-                    <th style="background-color: #ffb6c1;">Cont.</th>
+                    <th style="width: 30px;">Final</th>
+                    <th style="width: 30px;">Cont.</th>
+                    <th style="width: 30px;">Final</th>
+                    <th style="width: 30px;">Cont.</th>
                 </tr>
             </thead>
             <tbody>
                 ${resultRows}
-                <tr style="background-color: #90EE90; font-weight: bold;">
-                    <td colspan="7" style="text-align: right; padding-right: 10px;">TOTAL MARKS:</td>
-                    <td>${totalObtained}</td>
-                    <td>${totalFull}</td>
+                <tr class="total-row">
+                    <td colspan="7" style="text-align: right; padding-right: 8px; font-size: 9px;">TOTAL:</td>
+                    <td style="font-size: 10px;">${totalObtained}</td>
+                    <td style="font-size: 10px;">${totalFull}</td>
                     <td>-</td>
                     <td>-</td>
-                    <td>${avgGPA}</td>
+                    <td style="font-size: 10px;">${avgGPA}</td>
                 </tr>
             </tbody>
         </table>
@@ -1109,11 +1119,9 @@
         <div class="opinion-section">
             <div class="opinion-box">
                 <strong>Teachers Opinion:</strong>
-                _____________________________________________
             </div>
             <div class="opinion-box">
                 <strong>Guardian Opinion:</strong>
-                _____________________________________________
             </div>
         </div>
 
