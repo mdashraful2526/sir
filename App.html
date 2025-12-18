@@ -760,6 +760,17 @@
             return { grade: 'F', gpa: 0.00 };
         }
 
+        // Calculate Grade and GPA
+        function calculateGrade(marks) {
+            if (marks >= 80) return { grade: 'A+', gpa: 5.00 };
+            if (marks >= 70) return { grade: 'A', gpa: 4.00 };
+            if (marks >= 60) return { grade: 'A-', gpa: 3.50 };
+            if (marks >= 50) return { grade: 'B', gpa: 3.00 };
+            if (marks >= 40) return { grade: 'C', gpa: 2.00 };
+            if (marks >= 33) return { grade: 'D', gpa: 1.00 };
+            return { grade: 'F', gpa: 0.00 };
+        }
+
         // Show Student Detail Modal
         function showStudentDetail(student) {
             const modal = document.getElementById('studentModal');
@@ -1253,6 +1264,12 @@
                     written: 0,
                     mcq: 0,
                     practical: 0,
+                    cont: 0,
+                    quiz1: 0,
+                    classTest1: 0,
+                    assignment: 0,
+                    quiz2: 0,
+                    classTest2: 0,
                     total: subject.total
                 };
             });
