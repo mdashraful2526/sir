@@ -1,257 +1,1595 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mark Sheet - Dumuria Govt. Technical School And College</title>
+    <title>Dumuria Govt. Technical School - Result System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap');
-        
-        body {
-            font-family: 'Hind Siliguri', Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #ffe4e4; /* লাইট পিঙ্ক ব্যাকগ্রাউন্ড */
-            background-image: url('https://www.creativefabrica.com/wp-content/uploads/2023/07/24/Vintage-Pink-Steampunk-Scrapbook-Papers-Graphics-75325182-1.jpg'); /* পিঙ্ক স্টিমপাঙ্ক গিয়ার প্যাটার্ন – অনেকটা অরিজিনালের মতো গিয়ার আছে */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            position: relative;
-            max-width: 900px;
-            margin: 20px auto;
-            border: 2px solid #ddd;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="flex items-center justify-center min-h-screen">
+        <div class="text-center">
+            <div class="text-3xl text-blue-600 font-bold mb-4">Loading...</div>
+            <div id="loadingStatus" class="text-gray-600">Initializing Firebase...</div>
+        </div>
+    </div>
+
+    <!-- Home Page -->
+    <div id="homePage" class="hidden container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h1 class="text-4xl font-bold text-center text-blue-900 mb-2">
+                🎓 Dumuria Government Technical School & College
+            </h1>
+            <p class="text-center text-gray-600">Student Result Management System</p>
+        </div>
+
+        <div class="flex justify-end mb-6">
+            <button onclick="showLogin()" class="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
+                👤 Admin Login
+            </button>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🔍 Search Student Result</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <input type="text" id="searchName" placeholder="Student Name" class="border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none">
+                <input type="text" id="searchRoll" placeholder="Roll Number" class="border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none">
+                <select id="searchClass" class="border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none">
+                    <option value="">Select Class</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                </select>
+                <select id="searchBranch" class="border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none">
+                    <option value="">Select Branch</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                </select>
+            </div>
+            <button onclick="searchStudent()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition">
+                🔍 Search Result
+            </button>
+
+            <div id="searchResult" class="hidden mt-6 p-4 bg-green-50 border-2 border-green-500 rounded-lg">
+                <h3 class="text-xl font-bold text-green-800 mb-4">✅ Result Found!</h3>
+                <div id="searchResultContent" class="bg-white p-4 rounded-lg"></div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📋 All Students</h2>
+            <div id="allStudentsList" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+        </div>
+    </div>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="hidden min-h-screen flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full mx-4">
+            <h2 class="text-3xl font-bold text-center text-blue-900 mb-6">🔐 Admin Login</h2>
+            <input type="text" id="loginUsername" placeholder="Username" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 mb-4 focus:border-blue-500 focus:outline-none">
+            <input type="password" id="loginPassword" placeholder="Password" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 mb-6 focus:border-blue-500 focus:outline-none">
+            <button onclick="handleLogin()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition mb-4">
+                Login
+            </button>
+            <button onclick="showHome()" class="w-full bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition">
+                Back to Home
+            </button>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPage" class="hidden container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-blue-900">👨‍🏫 Admin Panel</h1>
+            <button onclick="handleLogout()" class="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition">
+                🚪 Logout
+            </button>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">➕ Add New Student</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <input type="text" id="newStudentName" placeholder="Student Name" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                <input type="number" id="newStudentRoll" placeholder="Roll" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                <input type="text" id="newFatherName" placeholder="Father Name" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                <input type="text" id="newMotherName" placeholder="Mother Name" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                <input type="text" id="newPhone" placeholder="Phone Number" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                <select id="newStudentClass" onchange="checkDepartment()" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                    <option value="6">Class 6</option>
+                    <option value="7">Class 7</option>
+                    <option value="8">Class 8</option>
+                    <option value="9">Class 9</option>
+                    <option value="10">Class 10</option>
+                </select>
+                <select id="newStudentBranch" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                    <option value="A">Branch A</option>
+                    <option value="B">Branch B</option>
+                </select>
+                <select id="newStudentDepartment" class="hidden border-2 border-gray-300 rounded-lg px-4 py-2">
+                    <option value="">Select Department</option>
+                    <option value="Civil">Civil</option>
+                    <option value="Computer">Computer</option>
+                    <option value="Electrical">Electrical</option>
+                    <option value="Mechanical">Mechanical</option>
+                </select>
+            </div>
+            <button id="addStudentBtn" onclick="addStudent()" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition">
+                ➕ Add Student
+            </button>
+        </div>
+
+        <!-- Student List with Delete Option -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex justify-between items-center mb-4 cursor-pointer" onclick="toggleManageStudents()">
+                <h2 class="text-2xl font-bold text-gray-800">👥 Manage Students</h2>
+                <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <span id="toggleManageIcon">▼</span> <span id="toggleManageText">Show</span>
+                </button>
+            </div>
+            <div id="manageStudentsContent" class="hidden">
+                <div class="mb-4 flex gap-2">
+                    <select id="manageClassFilter" onchange="filterStudentsForManage()" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                        <option value="">All Classes</option>
+                        <option value="6">Class 6</option>
+                        <option value="7">Class 7</option>
+                        <option value="8">Class 8</option>
+                        <option value="9">Class 9</option>
+                        <option value="10">Class 10</option>
+                    </select>
+                    <select id="manageBranchFilter" onchange="filterStudentsForManage()" class="border-2 border-gray-300 rounded-lg px-4 py-2">
+                        <option value="">All Branches</option>
+                        <option value="A">Branch A</option>
+                        <option value="B">Branch B</option>
+                    </select>
+                </div>
+                <div id="manageStudentsList" class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-blue-600 text-white">
+                                <th class="border border-gray-300 p-3">Name</th>
+                                <th class="border border-gray-300 p-3">Roll</th>
+                                <th class="border border-gray-300 p-3">Class</th>
+                                <th class="border border-gray-300 p-3">Branch</th>
+                                <th class="border border-gray-300 p-3">Department</th>
+                                <th class="border border-gray-300 p-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manageStudentsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📝 Enter Marks by Subject</h2>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 font-semibold mb-2">Select Class:</label>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="selectClass('6')" class="px-6 py-3 rounded-lg transition bg-gray-200 text-gray-700 hover:bg-gray-300" data-class="6">Class 6</button>
+                    <button onclick="selectClass('7')" class="px-6 py-3 rounded-lg transition bg-gray-200 text-gray-700 hover:bg-gray-300" data-class="7">Class 7</button>
+                    <button onclick="selectClass('8')" class="px-6 py-3 rounded-lg transition bg-gray-200 text-gray-700 hover:bg-gray-300" data-class="8">Class 8</button>
+                    <button onclick="selectClass('9')" class="px-6 py-3 rounded-lg transition bg-gray-200 text-gray-700 hover:bg-gray-300" data-class="9">Class 9</button>
+                    <button onclick="selectClass('10')" class="px-6 py-3 rounded-lg transition bg-gray-200 text-gray-700 hover:bg-gray-300" data-class="10">Class 10</button>
+                </div>
+            </div>
+
+            <div id="subjectSelection" class="hidden mb-6">
+                <label class="block text-gray-700 font-semibold mb-2">Select Subject:</label>
+                <div id="subjectButtons" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+            </div>
+
+            <div id="markEntryTable" class="hidden overflow-x-auto"></div>
+        </div>
+    </div>
+
+    <!-- Student Detail Modal -->
+    <div id="studentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-blue-900">Student Result</h2>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCy9gJJsEfgoT1CLAtaNiaykrrPSTC9q1g",
+            authDomain: "sctop-d22bc.firebaseapp.com",
+            projectId: "sctop-d22bc",
+            storageBucket: "sctop-d22bc.firebasestorage.app",
+            messagingSenderId: "733891150436",
+            appId: "1:733891150436:web:8ca3a0057030914d8f9571"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Global Variables
+        let students = [];
+        let isAdmin = false;
+        let selectedClass = '';
+        let selectedSubject = '';
+
+        // Subjects Configuration with detailed mark structure including all fields
+        const subjects = {
+            '6': [
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
+            ],
+            '7': [
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
+            ],
+            '8': [
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
+            ],
+            '9-Civil': [
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
+            ],
+            '9-Computer': [
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
+            ],
+            '9-Electrical': [
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
+            ],
+            '9-Mechanical': [
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
+            ],
+            '10-Civil': [
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
+            ],
+            '10-Computer': [
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
+            ],
+            '10-Electrical': [
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
+            ],
+            '10-Mechanical': [
+                { name: 'Bangla-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Bangla-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'English-1', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'English-2', total: 50, written: 30, mcq: 20, practical: 0, cont: 0 },
+                { name: 'Math', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Science', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'BGS', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'Voc Engineering', total: 150, written: 80, mcq: 20, practical: 50, cont: 20 },
+                { name: 'Religion', total: 100, written: 60, mcq: 40, practical: 0, cont: 20 },
+                { name: 'ICT', total: 50, written: 0, mcq: 25, practical: 25, cont: 0 }
+            ]
+        };
+
+        const departments = ['Civil', 'Computer', 'Electrical', 'Mechanical'];
+
+        // Demo Data
+        // Demo Data - One student per roll per branch
+        const demoData = [
+            // Class 6 - Branch A
+            { name: "রহিম আহমেদ", roll: 1, fatherName: "আব্দুল করিম", motherName: "সালমা বেগম", phone: "01711111111", class: "6", branch: "A", department: "" },
+            { name: "ফাতিমা খাতুন", roll: 2, fatherName: "মোহাম্মদ আলী", motherName: "রোকেয়া বেগম", phone: "01722222222", class: "6", branch: "A", department: "" },
+            { name: "সাকিব হাসান", roll: 3, fatherName: "হাসান মিয়া", motherName: "আয়েশা খাতুন", phone: "01733333333", class: "6", branch: "A", department: "" },
+            
+            // Class 6 - Branch B
+            { name: "নাদিয়া ইসলাম", roll: 1, fatherName: "আবুল কালাম", motherName: "রুমানা আক্তার", phone: "01744444444", class: "6", branch: "B", department: "" },
+            { name: "তানভীর রহমান", roll: 2, fatherName: "রহমান সাহেব", motherName: "শাপলা বেগম", phone: "01755555555", class: "6", branch: "B", department: "" },
+            
+            // Class 7 - Branch A
+            { name: "মেহেদী হাসান", roll: 1, fatherName: "নজরুল ইসলাম", motherName: "শাহনাজ বেগম", phone: "01766666666", class: "7", branch: "A", department: "" },
+            { name: "তাসনিম জাহান", roll: 2, fatherName: "জহির উদ্দিন", motherName: "পারভীন আক্তার", phone: "01777777777", class: "7", branch: "A", department: "" },
+            
+            // Class 7 - Branch B
+            { name: "রাফি আহমেদ", roll: 1, fatherName: "আনোয়ার হোসেন", motherName: "সুমাইয়া খাতুন", phone: "01788888888", class: "7", branch: "B", department: "" },
+            
+            // Class 8 - Branch A
+            { name: "সাদিয়া আফরিন", roll: 1, fatherName: "মতিউর রহমান", motherName: "নাসরিন সুলতানা", phone: "01799999999", class: "8", branch: "A", department: "" },
+            { name: "আরিফ হোসেন", roll: 2, fatherName: "শামসুল হক", motherName: "নাজমা বেগম", phone: "01700000001", class: "8", branch: "A", department: "" },
+            
+            // Class 9 - Civil
+            { name: "তানভীর আহমেদ", roll: 1, fatherName: "জহির উদ্দিন", motherName: "পারভীন আক্তার", phone: "01700000002", class: "9", branch: "A", department: "Civil" },
+            { name: "মাহমুদ হাসান", roll: 2, fatherName: "আলমগীর হোসেন", motherName: "রেহানা বেগম", phone: "01700000003", class: "9", branch: "A", department: "Civil" },
+            
+            // Class 9 - Computer
+            { name: "নাদিয়া সুলতানা", roll: 1, fatherName: "আবুল কালাম", motherName: "রুমানা আক্তার", phone: "01700000004", class: "9", branch: "A", department: "Computer" },
+            
+            // Class 9 - Electrical
+            { name: "আরিফ রহমান", roll: 1, fatherName: "হাবিবুর রহমান", motherName: "ফরিদা বেগম", phone: "01700000005", class: "9", branch: "B", department: "Electrical" },
+            
+            // Class 10 - Civil
+            { name: "রাকিব হোসেন", roll: 1, fatherName: "শামসুল হক", motherName: "নাজমা বেগম", phone: "01700000006", class: "10", branch: "A", department: "Civil" },
+            
+            // Class 10 - Computer
+            { name: "সুমাইয়া খাতুন", roll: 1, fatherName: "মনিরুল ইসলাম", motherName: "রোজিনা বেগম", phone: "01700000007", class: "10", branch: "B", department: "Computer" }
+        ];
+
+        // Update Loading Status
+        function updateLoadingStatus(message) {
+            const statusEl = document.getElementById('loadingStatus');
+            if (statusEl) statusEl.textContent = message;
         }
-        
-        .overlay-watermark {
+
+        // Initialize and Load Data from Firestore
+        async function init() {
+            try {
+                updateLoadingStatus('Checking Firebase connection...');
+                
+                // Check if we need to restructure data
+                const needsRestructure = await checkIfNeedsRestructure();
+                
+                if (needsRestructure) {
+                    updateLoadingStatus('Old structure detected. Cleaning up...');
+                    await deleteAllOldData();
+                    updateLoadingStatus('Creating new professional structure...');
+                    await createDemoDataInFirestore();
+                } else {
+                    updateLoadingStatus('Loading data from Firebase...');
+                }
+                
+                // Load all students
+                await loadAllStudents();
+                
+                updateLoadingStatus('Complete!');
+                showHome();
+            } catch (error) {
+                console.error('Firebase Error:', error);
+                updateLoadingStatus('Error: ' + error.message);
+                alert('Firebase connection failed. Please check console for details.');
+            }
+        }
+
+        // Check if database needs restructure
+        async function checkIfNeedsRestructure() {
+            try {
+                // Check if old structure exists (direct students collection)
+                const oldStructure = await db.collection('students').get();
+                
+                // If there are documents directly in students collection (not class_6, class_7, etc.)
+                if (!oldStructure.empty) {
+                    const firstDoc = oldStructure.docs[0];
+                    // Check if it's not our new structure (class_6, class_7, etc.)
+                    if (!firstDoc.id.startsWith('class_')) {
+                        return true; // Old structure detected
+                    }
+                }
+                
+                // Check if new structure exists
+                const class6Check = await db.collection('students/class_6/branch_A').limit(1).get();
+                if (class6Check.empty) {
+                    return true; // No data in new structure, needs creation
+                }
+                
+                return false; // Structure is fine
+            } catch (error) {
+                console.log('Check error, will create new structure:', error);
+                return true;
+            }
+        }
+
+        // Delete all old data from Firestore
+        async function deleteAllOldData() {
+            try {
+                // Delete old direct students collection
+                const oldStudents = await db.collection('students').get();
+                const deleteBatch = db.batch();
+                let deleteCount = 0;
+                
+                oldStudents.forEach(doc => {
+                    deleteBatch.delete(doc.ref);
+                    deleteCount++;
+                });
+                
+                if (deleteCount > 0) {
+                    await deleteBatch.commit();
+                    updateLoadingStatus(`Deleted ${deleteCount} old records...`);
+                }
+                
+                // Delete all class documents and their subcollections
+                for (let cls = 6; cls <= 10; cls++) {
+                    const classDocRef = db.collection('students').doc(`class_${cls}`);
+                    
+                    // Delete subcollections
+                    if (cls >= 9) {
+                        for (const dept of departments) {
+                            await deleteCollection(`students/class_${cls}/${dept.toLowerCase()}`, 10);
+                        }
+                    } else {
+                        await deleteCollection(`students/class_${cls}/branch_A`, 10);
+                        await deleteCollection(`students/class_${cls}/branch_B`, 10);
+                    }
+                    
+                    // Delete the class document itself
+                    await classDocRef.delete();
+                }
+                
+                updateLoadingStatus('Old data cleaned successfully!');
+            } catch (error) {
+                console.error('Error deleting old data:', error);
+                updateLoadingStatus('Proceeding with new structure...');
+            }
+        }
+
+        // Helper function to delete collection
+        async function deleteCollection(collectionPath, batchSize) {
+            const collectionRef = db.collection(collectionPath);
+            const query = collectionRef.limit(batchSize);
+            
+            return new Promise((resolve, reject) => {
+                deleteQueryBatch(query, resolve, reject);
+            });
+        }
+
+        async function deleteQueryBatch(query, resolve, reject) {
+            try {
+                const snapshot = await query.get();
+                
+                if (snapshot.size === 0) {
+                    resolve();
+                    return;
+                }
+                
+                const batch = db.batch();
+                snapshot.docs.forEach((doc) => {
+                    batch.delete(doc.ref);
+                });
+                
+                await batch.commit();
+                
+                // Recurse on the next process tick
+                process.nextTick(() => {
+                    deleteQueryBatch(query, resolve, reject);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        }
+
+        // Create Demo Data in Firestore with NEW STRUCTURE
+        async function createDemoDataInFirestore() {
+            updateLoadingStatus('Setting up professional database structure...');
+            
+            // First, create class documents (placeholder)
+            for (let cls = 6; cls <= 10; cls++) {
+                await db.collection('students').doc(`class_${cls}`).set({
+                    className: `Class ${cls}`,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+            let totalCount = 0;
+            const totalStudents = demoData.length;
+
+            // Now add students to proper subcollections
+            for (const student of demoData) {
+                const subjectKey = student.class >= '9' ? `${student.class}-${student.department}` : student.class;
+                const marks = {};
+                
+                // Initialize marks with proper structure including all fields
+                subjects[subjectKey]?.forEach(subject => {
+                    marks[subject.name] = {
+                        written: Math.floor(Math.random() * (subject.written * 0.3)) + (subject.written * 0.7),
+                        mcq: subject.mcq > 0 ? Math.floor(Math.random() * (subject.mcq * 0.3)) + (subject.mcq * 0.7) : 0,
+                        practical: subject.practical > 0 ? Math.floor(Math.random() * (subject.practical * 0.3)) + (subject.practical * 0.7) : 0,
+                        cont: subject.cont > 0 ? Math.floor(Math.random() * (subject.cont * 0.3)) + (subject.cont * 0.7) : 0,
+                        quiz1: 0,
+                        classTest1: 0,
+                        assignment: 0,
+                        quiz2: 0,
+                        classTest2: 0,
+                        total: subject.total
+                    };
+                });
+
+                const collectionPath = student.class >= '9' 
+                    ? `students/class_${student.class}/${student.department.toLowerCase()}`
+                    : `students/class_${student.class}/branch_${student.branch}`;
+
+                const docRef = db.collection(collectionPath).doc();
+                
+                await docRef.set({
+                    id: docRef.id,
+                    name: student.name,
+                    roll: student.roll,
+                    fatherName: student.fatherName,
+                    motherName: student.motherName,
+                    phone: student.phone,
+                    class: student.class,
+                    branch: student.branch,
+                    department: student.department,
+                    marks: marks,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                totalCount++;
+                updateLoadingStatus(`Creating students... (${totalCount}/${totalStudents}) - ${student.name}`);
+            }
+
+            updateLoadingStatus('✅ Professional database structure created successfully!');
+        }
+
+        // Load All Students from Firestore
+        async function loadAllStudents() {
+            students = [];
+            updateLoadingStatus('Loading all students from database...');
+            
+            try {
+                for (let cls = 6; cls <= 10; cls++) {
+                    if (cls >= 9) {
+                        // Load by department for class 9-10
+                        for (const dept of departments) {
+                            const snapshot = await db.collection(`students/class_${cls}/${dept.toLowerCase()}`).get();
+                            snapshot.forEach(doc => {
+                                students.push({ ...doc.data(), firestoreId: doc.id });
+                            });
+                        }
+                    } else {
+                        // Load by branch for class 6-8
+                        for (const branch of ['A', 'B']) {
+                            const snapshot = await db.collection(`students/class_${cls}/branch_${branch}`).get();
+                            snapshot.forEach(doc => {
+                                students.push({ ...doc.data(), firestoreId: doc.id });
+                            });
+                        }
+                    }
+                }
+                updateLoadingStatus(`Loaded ${students.length} students successfully!`);
+            } catch (error) {
+                console.error('Error loading students:', error);
+                updateLoadingStatus('Error loading students: ' + error.message);
+            }
+        }
+
+        // Page Navigation
+        function showPage(page) {
+            document.getElementById('loadingScreen').classList.add('hidden');
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
+            
+            if (page === 'home') {
+                document.getElementById('homePage').classList.remove('hidden');
+                renderAllStudents();
+            } else if (page === 'login') {
+                document.getElementById('loginPage').classList.remove('hidden');
+            } else if (page === 'admin') {
+                document.getElementById('adminPage').classList.remove('hidden');
+            }
+        }
+
+        function showHome() { showPage('home'); }
+        function showLogin() { showPage('login'); }
+        function showAdmin() { 
+            showPage('admin');
+            // Reset manage students to closed state when entering admin panel
+            manageStudentsVisible = false;
+            document.getElementById('manageStudentsContent').classList.add('hidden');
+            document.getElementById('toggleManageIcon').textContent = '▼';
+            document.getElementById('toggleManageText').textContent = 'Show';
+        }
+
+        // Add Student - Check Department
+        function checkDepartment() {
+            const cls = document.getElementById('newStudentClass').value;
+            const deptSelect = document.getElementById('newStudentDepartment');
+            
+            if (cls === '9' || cls === '10') {
+                deptSelect.classList.remove('hidden');
+            } else {
+                deptSelect.classList.add('hidden');
+                deptSelect.value = '';
+            }
+        }
+
+        // Login
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (username === 'admin' && password === 'admin') {
+                isAdmin = true;
+                showAdmin();
+            } else {
+                alert('Invalid credentials!');
+            }
+        }
+
+        function handleLogout() {
+            isAdmin = false;
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            showHome();
+        }
+
+        // Search Student
+        function searchStudent() {
+            const name = document.getElementById('searchName').value.toLowerCase();
+            const roll = document.getElementById('searchRoll').value;
+            const cls = document.getElementById('searchClass').value;
+            const branch = document.getElementById('searchBranch').value;
+
+            const result = students.find(s => 
+                (name && s.name.toLowerCase().includes(name)) ||
+                (roll && s.roll.toString() === roll) ||
+                (cls && branch && s.class === cls && s.branch === branch)
+            );
+
+            const resultDiv = document.getElementById('searchResult');
+            const contentDiv = document.getElementById('searchResultContent');
+
+            if (result) {
+                resultDiv.classList.remove('hidden');
+                contentDiv.innerHTML = `
+                    <p><strong>Name:</strong> ${result.name}</p>
+                    <p><strong>Roll:</strong> ${result.roll}</p>
+                    <p><strong>Class:</strong> ${result.class} | <strong>Branch:</strong> ${result.branch}</p>
+                    ${result.department ? `<p><strong>Department:</strong> ${result.department}</p>` : ''}
+                    <div class="mt-4">
+                        <button onclick='showStudentDetail(${JSON.stringify(result)})' class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 mr-2">
+                            View Full Result
+                        </button>
+                        <button onclick='downloadPDF(${JSON.stringify(result)})' class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                            📥 Download PDF
+                        </button>
+                    </div>
+                `;
+            } else {
+                resultDiv.classList.remove('hidden');
+                contentDiv.innerHTML = '<p class="text-red-600 font-semibold">❌ No student found!</p>';
+            }
+        }
+
+        // Render All Students
+        function renderAllStudents() {
+            const container = document.getElementById('allStudentsList');
+            container.innerHTML = students.slice(0, 20).map(student => `
+                <div onclick='showStudentDetail(${JSON.stringify(student)})' class="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-lg cursor-pointer transition">
+                    <h3 class="font-bold text-lg text-blue-900">${student.name}</h3>
+                    <p class="text-gray-600">Roll: ${student.roll}</p>
+                    <p class="text-gray-600">Class: ${student.class} | Branch: ${student.branch}</p>
+                    ${student.department ? `<p class="text-gray-600 text-sm">${student.department}</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Calculate Grade
+        function calculateGrade(marks) {
+            if (marks >= 80) return { grade: 'A+', gpa: 5.00 };
+            if (marks >= 70) return { grade: 'A', gpa: 4.00 };
+            if (marks >= 60) return { grade: 'A-', gpa: 3.50 };
+            if (marks >= 50) return { grade: 'B', gpa: 3.00 };
+            if (marks >= 40) return { grade: 'C', gpa: 2.00 };
+            if (marks >= 33) return { grade: 'D', gpa: 1.00 };
+            return { grade: 'F', gpa: 0.00 };
+        }
+
+        // Show Student Detail Modal
+        function showStudentDetail(student) {
+            const modal = document.getElementById('studentModal');
+            const content = document.getElementById('modalContent');
+            
+            const subjectKey = student.class >= '9' ? `${student.class}-${student.department}` : student.class;
+            const studentSubjects = subjects[subjectKey] || [];
+            
+            let totalMarks = 0;
+            let totalGPA = 0;
+            let subjectCount = 0;
+            
+            const resultRows = studentSubjects.map(subject => {
+                const mark = student.marks[subject.name] || { written: 0, mcq: 0, practical: 0 };
+                const obtained = (parseInt(mark.written) || 0) + (parseInt(mark.mcq) || 0) + (parseInt(mark.practical) || 0);
+                totalMarks += obtained;
+                const gradeInfo = calculateGrade(obtained);
+                totalGPA += gradeInfo.gpa;
+                subjectCount++;
+                
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="border border-gray-300 p-3">${subject.name}</td>
+                        <td class="border border-gray-300 p-3 text-center">${mark.written || 0}</td>
+                        <td class="border border-gray-300 p-3 text-center">${mark.mcq || 0}</td>
+                        <td class="border border-gray-300 p-3 text-center">${mark.practical || 0}</td>
+                        <td class="border border-gray-300 p-3 text-center font-bold">${obtained}</td>
+                        <td class="border border-gray-300 p-3 text-center">${subject.total}</td>
+                        <td class="border border-gray-300 p-3 text-center font-semibold">${gradeInfo.grade}</td>
+                        <td class="border border-gray-300 p-3 text-center">${gradeInfo.gpa.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            const avgGPA = subjectCount > 0 ? (totalGPA / subjectCount).toFixed(2) : '0.00';
+            
+            content.innerHTML = `
+                <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                    <p class="text-lg"><strong>Name:</strong> ${student.name}</p>
+                    <p><strong>Father:</strong> ${student.fatherName} | <strong>Mother:</strong> ${student.motherName}</p>
+                    <p><strong>Phone:</strong> ${student.phone}</p>
+                    <p><strong>Roll:</strong> ${student.roll} | <strong>Class:</strong> ${student.class} | <strong>Branch:</strong> ${student.branch}</p>
+                    ${student.department ? `<p><strong>Trade:</strong> ${student.department}</p>` : ''}
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse mb-4 text-sm">
+                        <thead>
+                            <tr class="bg-blue-600 text-white">
+                                <th class="border border-gray-300 p-2">Subject</th>
+                                <th class="border border-gray-300 p-2">Written</th>
+                                <th class="border border-gray-300 p-2">MCQ</th>
+                                <th class="border border-gray-300 p-2">Practical</th>
+                                <th class="border border-gray-300 p-2">Obtained</th>
+                                <th class="border border-gray-300 p-2">Total</th>
+                                <th class="border border-gray-300 p-2">Grade</th>
+                                <th class="border border-gray-300 p-2">GPA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${resultRows}
+                            <tr class="bg-green-100 font-bold">
+                                <td colspan="4" class="border border-gray-300 p-3 text-right">TOTAL:</td>
+                                <td class="border border-gray-300 p-3 text-center">${totalMarks}</td>
+                                <td class="border border-gray-300 p-3 text-center">${studentSubjects.reduce((sum, s) => sum + s.total, 0)}</td>
+                                <td class="border border-gray-300 p-3 text-center">-</td>
+                                <td class="border border-gray-300 p-3 text-center">${avgGPA}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <button onclick='downloadPDF(${JSON.stringify(student)})' class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">
+                    📥 Download Result PDF
+                </button>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('studentModal').classList.add('hidden');
+        }
+
+        // Download Professional PDF Result Sheet
+        function downloadPDF(student) {
+            const subjectKey = student.class >= '9' ? `${student.class}-${student.department}` : student.class;
+            const studentSubjects = subjects[subjectKey] || [];
+            
+            let totalObtained = 0;
+            let totalFull = 0;
+            let totalGPA = 0;
+            let subjectCount = 0;
+            
+            const resultRows = studentSubjects.map(subject => {
+                const mark = student.marks[subject.name] || { written: 0, mcq: 0, practical: 0 };
+                const finalMarks = subject.written > 0 ? (mark.written || 0) : '';
+                const contMarks = subject.mcq > 0 ? (mark.mcq || 0) : '';
+                const practicalMarks = subject.practical > 0 ? (mark.practical || 0) : '-----';
+                
+                const obtained = (parseInt(mark.written) || 0) + (parseInt(mark.mcq) || 0) + (parseInt(mark.practical) || 0);
+                totalObtained += obtained;
+                totalFull += subject.total;
+                const gradeInfo = calculateGrade(obtained);
+                totalGPA += gradeInfo.gpa;
+                subjectCount++;
+                
+                return `
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 5px 8px; text-align: left; font-size: 10px;">${subject.name}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 9px;">${subject.written || ''}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 9px;">${subject.mcq || ''}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 9px;">${subject.practical || '-----'}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 10px;">${finalMarks}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 10px;">${contMarks}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 10px;">${practicalMarks}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-weight: bold; font-size: 10px;">${obtained}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 10px;">${subject.total}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-weight: bold; font-size: 10px; background-color: #ffe6e6;">${gradeInfo.grade}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 10px; background-color: #e6f7ff;">${gradeInfo.gpa.toFixed(2)}</td>
+                        <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 10px; background-color: #fff4e6;">${gradeInfo.gpa.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            const avgGPA = subjectCount > 0 ? (totalGPA / subjectCount).toFixed(2) : '0.00';
+            
+            const pdfHTML = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { size: A4 portrait; margin: 8mm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Arial', 'Segoe UI', sans-serif; 
+            font-size: 10px;
+            line-height: 1.3;
+        }
+        .container {
+            width: 100%;
+            max-width: 210mm;
+            margin: 0 auto;
+            border: 2px dashed #333;
+            padding: 12px;
+            position: relative;
+            background: white;
+        }
+        .watermark {
             position: absolute;
-            top: 50%;
+            top: 45%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 0.15; /* ওয়াটারমার্কের মতো ফেইড */
-            font-size: 120px;
-            color: #ff9999;
-            pointer-events: none;
+            transform: translate(-50%, -50%) rotate(-25deg);
+            font-size: 60px;
+            color: rgba(255, 105, 180, 0.08);
+            font-weight: bold;
             z-index: 0;
-            text-align: center;
+            white-space: nowrap;
         }
-        
-        .content {
-            position: relative;
-            z-index: 1;
-            background-color: rgba(255, 255, 255, 0.85); /* সামান্য সাদা ওভারলে যাতে টেক্সট পরিষ্কার দেখায় */
-            padding: 20px;
-            border-radius: 10px;
-        }
-        
-        /* বাকি স্টাইল আগের মতোই */
         .header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #000;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+        .logo {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #1e40af;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .header-center {
             text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .header img {
-            width: 120px;
-            height: auto;
-        }
-        
-        .title {
             flex: 1;
-            text-align: center;
+            padding: 0 15px;
         }
-        
-        .title h1 {
-            margin: 0;
-            font-size: 24px;
-            color: #003366;
-        }
-        
-        .title p {
-            margin: 5px 0;
+        .header-center h1 {
             font-size: 16px;
+            color: #1e40af;
+            font-weight: bold;
+            margin-bottom: 2px;
         }
-        
-        .title h2 {
-            margin: 5px 0;
-            font-size: 18px;
-            color: green;
+        .header-center p {
+            font-size: 9px;
+            color: #333;
+            margin: 1px 0;
         }
-        
-        .info-section {
+        .header-center .marksheet {
+            color: #059669;
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 10px;
+            margin-top: 3px;
+        }
+        .student-info {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin: 10px 0;
+            position: relative;
+            z-index: 1;
         }
-        
-        .student-info {
-            width: 60%;
+        .info-left {
+            flex: 1;
+            padding-right: 20px;
         }
-        
-        .student-info p {
-            margin: 8px 0;
-            font-size: 14px;
+        .info-left p {
+            font-size: 9px;
+            margin: 3px 0;
+            line-height: 1.4;
         }
-        
-        .grade-scale {
-            width: 35%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-        
-        .grade-scale th, .grade-scale td {
+        .info-right {
+            width: 140px;
             border: 1px solid #000;
-            padding: 6px;
-            text-align: center;
+            padding: 3px;
+            flex-shrink: 0;
         }
-        
-        .grade-scale th {
-            background-color: #f0f0f0;
-        }
-        
-        table.main-table {
+        .info-right table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            font-size: 13px;
         }
-        
-        .main-table th, .main-table td {
+        .info-right td {
+            border: 1px solid #000;
+            padding: 2px;
+            text-align: center;
+            font-size: 8px;
+        }
+        .position-box {
+            position: absolute;
+            right: 150px;
+            top: 15px;
+            border: 1.5px solid #000;
+            padding: 5px 12px;
+            background: white;
+            font-weight: bold;
+            font-size: 9px;
+        }
+        .marks-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            position: relative;
+            z-index: 1;
+        }
+        .marks-table th, .marks-table td {
+            border: 1px solid #000;
+            padding: 4px 3px;
+            text-align: center;
+            font-size: 8px;
+            line-height: 1.2;
+        }
+        .marks-table th {
+            background-color: #ffb6c1;
+            font-weight: bold;
+        }
+        .marks-table td:first-child {
+            text-align: left;
+            padding-left: 5px;
+        }
+        .total-row {
+            background-color: #90EE90 !important;
+            font-weight: bold;
+        }
+        .opinion-section {
+            margin: 12px 0;
+            position: relative;
+            z-index: 1;
+        }
+        .opinion-box {
             border: 1px solid #000;
             padding: 6px;
-            text-align: center;
+            margin: 6px 0;
+            min-height: 35px;
+            font-size: 9px;
         }
-        
-        .main-table th {
-            background-color: #e0e0e0;
+        .opinion-box strong {
+            display: block;
+            margin-bottom: 3px;
         }
-        
-        .opinions {
-            margin-top: 40px;
-            font-size: 14px;
-        }
-        
-        .opinions p {
-            margin: 20px 0;
-        }
-        
-        .signatures {
+        .signature-section {
             display: flex;
-            justify-content: space-around;
-            margin-top: 60px;
-            font-size: 14px;
+            justify-content: space-between;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
         }
-        
-        .signature {
+        .signature-box {
             text-align: center;
-            width: 30%;
+            flex: 1;
         }
-        
-        .signature div {
+        .signature-line {
             border-top: 1px solid #000;
-            padding-top: 10px;
-            margin-top: 50px;
-        }
-        
-        @media print {
-            body {
-                background-image: none;
-                background-color: white;
-            }
-            .content {
-                background-color: white;
-            }
-            .overlay-watermark {
-                opacity: 0.05;
-            }
+            margin-top: 30px;
+            padding-top: 4px;
+            font-weight: bold;
+            font-size: 9px;
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="overlay-watermark">
-        <div style="font-size: 200px; line-height: 1;">⚙️</div>
-        <div>DTSC</div>
-        <div style="font-size: 150px;">⭐ ⭐ ⭐</div>
-        <div style="font-size: 180px; margin-top: -50px;">📖</div>
-    </div>
-    
-    <div class="content">
+    <div class="container">
+        <div class="watermark">ডুমুরিয়া সরকারি কলেজ ২০২৫</div>
+        
         <div class="header">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Government_Seal_of_Bangladesh.svg" alt="Bangladesh Emblem">
-            <div class="title">
+            <div class="logo">🇧🇩</div>
+            <div class="header-center">
                 <h1>Dumuria Govt. Technical School And College</h1>
                 <p>Dumuria, Khulna</p>
-                <h2>Test Exam-2025</h2>
-                <h2>Mark Sheet</h2>
+                <p><strong>Test Exam-2025</strong></p>
+                <p class="marksheet">Mark Sheet</p>
             </div>
-            <img src="https://file-khulna.portal.gov.bd/uploads/72fc6454-47f0-4caa-80ca-a74c31440b3c//668/aaa/b9b/668aaab9b9ecb614285182.jpg" alt="School Logo">
+            <div class="logo">⚙️</div>
         </div>
-        
-        <div class="info-section">
-            <div class="student-info">
-                <p>Student Name :</p>
-                <p>Father Name :</p>
-                <p>Mother Name :</p>
-                <p>Class :</p>
-                <p>Trade : Not Applicable</p>
-                <p>Roll Number :</p>
-                <p>Position :</p>
+
+        <div class="student-info">
+            <div class="info-left">
+                <p><strong>Student Name :</strong> ${student.name}</p>
+                <p><strong>Father Name :</strong> ${student.fatherName}</p>
+                <p><strong>Mother Name :</strong> ${student.motherName}</p>
+                <p><strong>Class :</strong> ${student.class}</p>
+                <p><strong>Trade :</strong> ${student.department || 'Not Applicable'}</p>
+                <p><strong>Roll Number :</strong> ${student.roll}</p>
+                <div class="position-box">Position : ___</div>
             </div>
-            
-            <table class="grade-scale">
-                <tr><th>Marks</th><th>Letter Grade</th><th>GPA</th></tr>
-                <tr><td>80-100</td><td>A+</td><td>5.00</td></tr>
-                <tr><td>70-79</td><td>A</td><td>4.00</td></tr>
-                <tr><td>60-69</td><td>A-</td><td>3.50</td></tr>
-                <tr><td>50-59</td><td>B</td><td>3.00</td></tr>
-                <tr><td>40-49</td><td>C</td><td>2.00</td></tr>
-                <tr><td>33-39</td><td>D</td><td>1.00</td></tr>
-                <tr><td>00-32</td><td>F</td><td>0.00</td></tr>
-            </table>
+            <div class="info-right">
+                <table>
+                    <tr><td>80-100</td><td>A+</td><td>5.00</td></tr>
+                    <tr><td>70-79</td><td>A</td><td>4.00</td></tr>
+                    <tr><td>60-69</td><td>A-</td><td>3.50</td></tr>
+                    <tr><td>50-59</td><td>B</td><td>3.00</td></tr>
+                    <tr><td>40-49</td><td>C</td><td>2.00</td></tr>
+                    <tr><td>33-39</td><td>D</td><td>1.00</td></tr>
+                    <tr><td>00-32</td><td>F</td><td>0.00</td></tr>
+                </table>
+            </div>
         </div>
-        
-        <table class="main-table">
+
+        <table class="marks-table">
             <thead>
                 <tr>
-                    <th rowspan="2">Subject</th>
-                    <th colspan="2">Total Marks</th>
-                    <th colspan="2">Obt. Marks</th>
-                    <th rowspan="2">Total Obt. Marks</th>
-                    <th rowspan="2">Letter Grade</th>
-                    <th rowspan="2">GPA</th>
-                    <th rowspan="2">Average GPA</th>
+                    <th rowspan="3" style="width: 80px;">Subject</th>
+                    <th colspan="3">Total Marks</th>
+                    <th colspan="3">Obt. Marks</th>
+                    <th rowspan="3" style="width: 40px;">Total<br>Obt.<br>Marks</th>
+                    <th rowspan="3" style="width: 40px;">Total<br>Marks</th>
+                    <th rowspan="3" style="width: 40px;">Letter<br>Grade</th>
+                    <th rowspan="3" style="width: 35px;">GPA</th>
+                    <th rowspan="3" style="width: 40px;">Average<br>GPA</th>
                 </tr>
                 <tr>
-                    <th>Final</th><th>Cont.</th><th>Final</th><th>Cont.</th>
+                    <th colspan="2" style="font-size: 7px;">ধারাবাহিক মূল্যায়নে<br>প্রাপ্ত নম্বর</th>
+                    <th rowspan="2" style="font-size: 7px; width: 35px;">ব্যবহারিক<br>পরীক্ষা</th>
+                    <th colspan="2" style="font-size: 7px;">ধারাবাহিক মূল্যায়নে<br>প্রাপ্ত নম্বর</th>
+                    <th rowspan="2" style="font-size: 7px; width: 35px;">ব্যবহারিক<br>পরীক্ষা</th>
+                </tr>
+                <tr>
+                    <th style="width: 30px;">Final</th>
+                    <th style="width: 30px;">Cont.</th>
+                    <th style="width: 30px;">Final</th>
+                    <th style="width: 30px;">Cont.</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td>Bangla-1</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>Bangla-2</td><td>30</td><td>20</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>English-1</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>English-2</td><td>30</td><td>20</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>Math</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>Science</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>BGS</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>Voc Engineering</td><td>80</td><td>20</td><td>—</td><td>50</td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>Religion</td><td>60</td><td>40</td><td>—</td><td>—</td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>ICT</td><td>25</td><td>—</td><td>—</td><td>25</td><td></td><td></td><td></td><td></td></tr>
+                ${resultRows}
+                <tr class="total-row">
+                    <td colspan="7" style="text-align: right; padding-right: 8px; font-size: 9px;">TOTAL:</td>
+                    <td style="font-size: 10px;">${totalObtained}</td>
+                    <td style="font-size: 10px;">${totalFull}</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td style="font-size: 10px;">${avgGPA}</td>
+                </tr>
             </tbody>
         </table>
-        
-        <div class="opinions">
-            <p>Teachers Opinion: ________________________________ শিক্ষকের মতামত : ________________________________</p>
-            <p>Guardian Opinion: ________________________________</p>
+
+        <div class="opinion-section">
+            <div class="opinion-box">
+                <strong>Teachers Opinion:</strong>
+            </div>
+            <div class="opinion-box">
+                <strong>Guardian Opinion:</strong>
+            </div>
         </div>
-        
-        <div class="signatures">
-            <div class="signature"><div>Academic Incharge</div></div>
-            <div class="signature"><div>Head of Department</div></div>
-            <div class="signature"><div>Principal</div></div>
+
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line">Academic Incharge</div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line">Head of Department</div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line">Principal</div>
+            </div>
         </div>
     </div>
+</body>
+</html>`;
+
+            const blob = new Blob([pdfHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `MarkSheet_${student.name}_Class${student.class}_Roll${student.roll}.html`;
+            a.click();
+        }
+
+        // Global variable to prevent duplicate submissions
+        let isSubmitting = false;
+        let manageStudentsVisible = false;
+
+        // Toggle Manage Students Section
+        function toggleManageStudents() {
+            const content = document.getElementById('manageStudentsContent');
+            const icon = document.getElementById('toggleManageIcon');
+            const text = document.getElementById('toggleManageText');
+            
+            manageStudentsVisible = !manageStudentsVisible;
+            
+            if (manageStudentsVisible) {
+                content.classList.remove('hidden');
+                icon.textContent = '▲';
+                text.textContent = 'Hide';
+                filterStudentsForManage(); // Load data when opening
+            } else {
+                content.classList.add('hidden');
+                icon.textContent = '▼';
+                text.textContent = 'Show';
+            }
+        }
+
+        // Add Student with duplicate prevention
+        async function addStudent() {
+            // Prevent duplicate submissions
+            if (isSubmitting) {
+                alert('Please wait, student is being added...');
+                return;
+            }
+
+            const name = document.getElementById('newStudentName').value.trim();
+            const roll = document.getElementById('newStudentRoll').value.trim();
+            const fatherName = document.getElementById('newFatherName').value.trim();
+            const motherName = document.getElementById('newMotherName').value.trim();
+            const phone = document.getElementById('newPhone').value.trim();
+            const cls = document.getElementById('newStudentClass').value;
+            const branch = document.getElementById('newStudentBranch').value;
+            const department = document.getElementById('newStudentDepartment').value;
+
+            if (!name || !roll || !fatherName || !motherName || !phone) {
+                alert('Please fill all required fields!');
+                return;
+            }
+
+            if ((cls === '9' || cls === '10') && !department) {
+                alert('Please select department for Class 9/10!');
+                return;
+            }
+
+            // Check if student already exists (same name, roll, class, branch)
+            const existingStudent = students.find(s => 
+                s.name.toLowerCase() === name.toLowerCase() && 
+                s.roll === parseInt(roll) && 
+                s.class === cls && 
+                s.branch === branch
+            );
+
+            if (existingStudent) {
+                alert('A student with the same name, roll, class, and branch already exists!');
+                return;
+            }
+
+            // Disable button and show loading state
+            isSubmitting = true;
+            const addBtn = document.getElementById('addStudentBtn');
+            addBtn.disabled = true;
+            addBtn.innerHTML = '⏳ Adding Student...';
+            addBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const subjectKey = cls >= '9' ? `${cls}-${department}` : cls;
+            const marks = {};
+            subjects[subjectKey]?.forEach(subject => {
+                marks[subject.name] = {
+                    written: 0,
+                    mcq: 0,
+                    practical: 0,
+                    total: subject.total
+                };
+            });
+
+            const collectionPath = cls >= '9' 
+                ? `students/class_${cls}/${department.toLowerCase()}`
+                : `students/class_${cls}/branch_${branch}`;
+
+            try {
+                const docRef = await db.collection(collectionPath).add({
+                    name: name,
+                    roll: parseInt(roll),
+                    fatherName: fatherName,
+                    motherName: motherName,
+                    phone: phone,
+                    class: cls,
+                    branch: branch,
+                    department: department,
+                    marks: marks,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Reload students
+                await loadAllStudents();
+
+                // Clear form
+                document.getElementById('newStudentName').value = '';
+                document.getElementById('newStudentRoll').value = '';
+                document.getElementById('newFatherName').value = '';
+                document.getElementById('newMotherName').value = '';
+                document.getElementById('newPhone').value = '';
+                
+                // Refresh manage students list
+                filterStudentsForManage();
+                
+                alert('✅ Student added successfully!');
+            } catch (error) {
+                console.error('Error adding student:', error);
+                alert('❌ Error adding student: ' + error.message);
+            } finally {
+                // Re-enable button
+                isSubmitting = false;
+                addBtn.disabled = false;
+                addBtn.innerHTML = '➕ Add Student';
+                addBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // Filter and display students for management
+        function filterStudentsForManage() {
+            const classFilter = document.getElementById('manageClassFilter').value;
+            const branchFilter = document.getElementById('manageBranchFilter').value;
+            
+            let filtered = students;
+            
+            if (classFilter) {
+                filtered = filtered.filter(s => s.class === classFilter);
+            }
+            
+            if (branchFilter) {
+                filtered = filtered.filter(s => s.branch === branchFilter);
+            }
+
+            const tbody = document.getElementById('manageStudentsBody');
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-gray-500">No students found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(student => `
+                <tr class="hover:bg-gray-50">
+                    <td class="border border-gray-300 p-3">${student.name}</td>
+                    <td class="border border-gray-300 p-3 text-center">${student.roll}</td>
+                    <td class="border border-gray-300 p-3 text-center">${student.class}</td>
+                    <td class="border border-gray-300 p-3 text-center">${student.branch}</td>
+                    <td class="border border-gray-300 p-3 text-center">${student.department || '-'}</td>
+                    <td class="border border-gray-300 p-3 text-center">
+                        <button onclick='deleteStudent("${student.firestoreId}", "${student.class}", "${student.branch}", "${student.department}", "${student.name}")' 
+                                class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
+                            🗑️ Delete
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Delete Student
+        async function deleteStudent(firestoreId, cls, branch, department, name) {
+            if (!confirm(`Are you sure you want to delete ${name}?`)) {
+                return;
+            }
+
+            const collectionPath = cls >= '9' 
+                ? `students/class_${cls}/${department.toLowerCase()}`
+                : `students/class_${cls}/branch_${branch}`;
+
+            try {
+                await db.collection(collectionPath).doc(firestoreId).delete();
+                
+                // Remove from local array
+                students = students.filter(s => s.firestoreId !== firestoreId);
+                
+                // Refresh the list
+                filterStudentsForManage();
+                
+                alert('✅ Student deleted successfully!');
+            } catch (error) {
+                console.error('Error deleting student:', error);
+                alert('❌ Error deleting student: ' + error.message);
+            }
+        }
+
+        // Select Class for Mark Entry
+        function selectClass(cls) {
+            selectedClass = cls;
+            selectedSubject = '';
+            
+            document.querySelectorAll('[data-class]').forEach(btn => {
+                if (btn.getAttribute('data-class') === cls) {
+                    btn.className = 'px-6 py-3 rounded-lg transition bg-blue-600 text-white';
+                } else {
+                    btn.className = 'px-6 py-3 rounded-lg transition bg-gray-200 text-gray-700 hover:bg-gray-300';
+                }
+            });
+
+            renderSubjects();
+        }
+
+        // Render Subjects
+        function renderSubjects() {
+            const container = document.getElementById('subjectButtons');
+            const section = document.getElementById('subjectSelection');
+            section.classList.remove('hidden');
+            
+            let subjectsList = [];
+            
+            if (selectedClass === '9' || selectedClass === '10') {
+                departments.forEach(dept => {
+                    const deptSubjects = subjects[`${selectedClass}-${dept}`] || [];
+                    deptSubjects.forEach(subject => {
+                        subjectsList.push({ key: `${dept}-${subject.name}`, label: `${subject.name} (${dept})`, subject: subject });
+                    });
+                });
+            } else {
+                const classSubjects = subjects[selectedClass] || [];
+                classSubjects.forEach(subject => {
+                    subjectsList.push({ key: subject.name, label: subject.name, subject: subject });
+                });
+            }
+
+            container.innerHTML = subjectsList.map(s => `
+                <button onclick='selectSubject(${JSON.stringify(s.key)}, ${JSON.stringify(s.subject)})' 
+                        data-subject="${s.key}"
+                        class="px-4 py-3 rounded-lg transition bg-gray-200 text-gray-700 hover:bg-gray-300">
+                    📚 ${s.label}
+                </button>
+            `).join('');
+
+            document.getElementById('markEntryTable').classList.add('hidden');
+        }
+
+        // Select Subject
+        let currentSubjectData = null;
+        function selectSubject(subject, subjectData) {
+            selectedSubject = subject;
+            currentSubjectData = subjectData;
+            
+            document.querySelectorAll('[data-subject]').forEach(btn => {
+                if (btn.getAttribute('data-subject') === subject) {
+                    btn.className = 'px-4 py-3 rounded-lg transition bg-green-600 text-white';
+                } else {
+                    btn.className = 'px-4 py-3 rounded-lg transition bg-gray-200 text-gray-700 hover:bg-gray-300';
+                }
+            });
+
+            renderMarkTable();
+        }
+
+        // Render Simplified Mark Entry Table with all input fields
+        function renderMarkTable() {
+            const container = document.getElementById('markEntryTable');
+            container.classList.remove('hidden');
+            
+            let filteredStudents = students.filter(s => s.class === selectedClass);
+            
+            if (selectedSubject.includes('-')) {
+                const [dept] = selectedSubject.split('-');
+                filteredStudents = filteredStudents.filter(s => s.department === dept);
+            }
+
+            // Sort by branch then roll
+            filteredStudents.sort((a, b) => {
+                if (a.branch !== b.branch) return a.branch.localeCompare(b.branch);
+                return a.roll - b.roll;
+            });
+
+            const actualSubject = selectedSubject.includes('-') ? selectedSubject.split('-').slice(1).join('-') : selectedSubject;
+            
+            let tableHTML = `
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    📊 Enter Marks for: ${actualSubject}
+                    ${selectedSubject.includes('-') ? ` (${selectedSubject.split('-')[0]})` : ''}
+                </h3>
+                <div class="overflow-x-auto bg-white p-4 rounded-lg shadow">
+                    <table class="w-full border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-pink-200">
+                                <th rowspan="2" class="border border-gray-800 p-2">Serial</th>
+                                <th rowspan="2" class="border border-gray-800 p-2">Student Name & Roll</th>
+                                <th rowspan="2" class="border border-gray-800 p-2">Total</th>
+                                <th colspan="5" class="border border-gray-800 p-2 text-center">Continuous Assessment (আসিক - 30%)</th>
+                                <th colspan="3" class="border border-gray-800 p-2 text-center">Summative (স্বাধিক - 70%)</th>
+                                <th rowspan="2" class="border border-gray-800 p-2">Final<br>Total</th>
+                            </tr>
+                            <tr class="bg-pink-200">
+                                <th class="border border-gray-800 p-1 text-center">Quiz1<br>(5%)</th>
+                                <th class="border border-gray-800 p-1 text-center">Test1<br>(7%)</th>
+                                <th class="border border-gray-800 p-1 text-center">Work<br>(8%)</th>
+                                <th class="border border-gray-800 p-1 text-center">Quiz2<br>(10%)</th>
+                                <th class="border border-gray-800 p-1 text-center">Cont<br>(${currentSubjectData.cont || 0})</th>
+                                <th class="border border-gray-800 p-1 text-center">Written<br>(${currentSubjectData.written})</th>
+                                <th class="border border-gray-800 p-1 text-center">MCQ<br>(${currentSubjectData.mcq})</th>
+                                <th class="border border-gray-800 p-1 text-center">Practical<br>(${currentSubjectData.practical})</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            
+            // Generate rows for each student
+            filteredStudents.forEach((student, index) => {
+                const studentMarks = student.marks[actualSubject] || { 
+                    quiz1: 0, classTest1: 0, assignment: 0, quiz2: 0, cont: 0,
+                    written: 0, mcq: 0, practical: 0
+                };
+                
+                const total = (parseInt(studentMarks.written) || 0) + 
+                             (parseInt(studentMarks.mcq) || 0) + 
+                             (parseInt(studentMarks.practical) || 0) +
+                             (parseInt(studentMarks.cont) || 0);
+                
+                tableHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="border border-gray-800 p-2 text-center">${index + 1}</td>
+                        <td class="border border-gray-800 p-2">
+                            <div class="font-semibold text-blue-900">${student.name}</div>
+                            <div class="text-xs text-gray-600">Roll: ${student.roll} | Branch: ${student.branch}</div>
+                        </td>
+                        <td class="border border-gray-800 p-2 text-center font-bold">${currentSubjectData.total}</td>
+                        
+                        <!-- Continuous Assessment Inputs -->
+                        <td class="border border-gray-800 p-1">
+                            <input type="number" min="0" max="5" value="${studentMarks.quiz1 || 0}" 
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'quiz1', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-12 border border-gray-300 rounded px-1 py-1 text-center text-xs">
+                        </td>
+                        <td class="border border-gray-800 p-1">
+                            <input type="number" min="0" max="7" value="${studentMarks.classTest1 || 0}" 
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'classTest1', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-12 border border-gray-300 rounded px-1 py-1 text-center text-xs">
+                        </td>
+                        <td class="border border-gray-800 p-1">
+                            <input type="number" min="0" max="8" value="${studentMarks.assignment || 0}" 
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'assignment', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-12 border border-gray-300 rounded px-1 py-1 text-center text-xs">
+                        </td>
+                        <td class="border border-gray-800 p-1">
+                            <input type="number" min="0" max="10" value="${studentMarks.quiz2 || 0}" 
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'quiz2', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-12 border border-gray-300 rounded px-1 py-1 text-center text-xs">
+                        </td>
+                        <td class="border border-gray-800 p-1">
+                            ${currentSubjectData.cont > 0 ? `<input type="number" min="0" max="${currentSubjectData.cont}" value="${studentMarks.cont || 0}" 
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'cont', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-12 border border-gray-300 rounded px-1 py-1 text-center text-xs">` : '---'}
+                        </td>
+                        
+                        <!-- Summative Assessment Inputs -->
+                        <td class="border border-gray-800 p-1">
+                            ${currentSubjectData.written > 0 ? `<input type="number" min="0" max="${currentSubjectData.written}" value="${studentMarks.written || 0}" 
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'written', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-14 border border-gray-300 rounded px-1 py-1 text-center text-xs font-semibold">` : ''}
+                        </td>
+                        <td class="border border-gray-800 p-1">
+                            ${currentSubjectData.mcq > 0 ? `<input type="number" min="0" max="${currentSubjectData.mcq}" value="${studentMarks.mcq || 0}" 
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'mcq', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-14 border border-gray-300 rounded px-1 py-1 text-center text-xs font-semibold">` : ''}
+                        </td>
+                        <td class="border border-gray-800 p-1">
+                            ${currentSubjectData.practical > 0 ? `<input type="number" min="0" max="${currentSubjectData.practical}" value="${studentMarks.practical || 0}" 
+                                onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'practical', this.value, '${student.class}', '${student.branch}', '${student.department}')"
+                                class="w-14 border border-gray-300 rounded px-1 py-1 text-center text-xs font-semibold">` : '---'}
+                        </td>
+                        
+                        <td class="border border-gray-800 p-2 text-center font-bold text-blue-900">${total}</td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                        </tbody>
+                    </table>
+                    <div class="mt-4 p-3 bg-blue-50 rounded">
+                        <p class="text-sm text-gray-700"><strong>Note:</strong> Enter marks in each column. The Final Total will calculate automatically.</p>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = tableHTML;
+        }
+
+        // Update Detailed Mark Field
+        async function updateDetailedMark(firestoreId, subject, field, value, cls, branch, department) {
+            const collectionPath = cls >= '9' 
+                ? `students/class_${cls}/${department.toLowerCase()}`
+                : `students/class_${cls}/branch_${branch}`;
+
+            try {
+                await db.collection(collectionPath).doc(firestoreId).update({
+                    [`marks.${subject}.${field}`]: parseInt(value) || 0
+                });
+
+                // Update local array
+                const student = students.find(s => s.firestoreId === firestoreId);
+                if (student && student.marks[subject]) {
+                    student.marks[subject][field] = parseInt(value) || 0;
+                }
+                
+                // Re-render table to update total
+                renderMarkTable();
+            } catch (error) {
+                console.error('Error updating mark:', error);
+                alert('Error updating mark: ' + error.message);
+            }
+        }
+
+        // Start Application
+        window.onload = init;
+    </script>
 </body>
 </html>
