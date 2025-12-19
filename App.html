@@ -15,10 +15,19 @@
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
 
     <!-- Loading Screen -->
-    <div id="loadingScreen" class="flex items-center justify-center min-h-screen">
-        <div class="text-center">
-            <div class="text-3xl text-blue-600 font-bold mb-4">Loading...</div>
-            <div id="loadingStatus" class="text-gray-600">Initializing Firebase...</div>
+    <div id="loadingScreen" class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-600 to-indigo-700">
+        <div class="text-center bg-white rounded-2xl shadow-2xl p-10 max-w-md mx-4">
+            <div class="mb-6">
+                <svg class="animate-spin h-16 w-16 mx-auto text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Loading System</h2>
+            <p id="loadingStatus" class="text-gray-600 mb-4">Initializing Firebase...</p>
+            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div id="loadingBar" class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
         </div>
     </div>
 
@@ -412,27 +421,27 @@
             try {
                 updateLoadingStatus('Checking Firebase connection...');
                 
-                // Try to load existing data first
-                updateLoadingStatus('Loading students...');
-                await loadAllStudents();
+                // Check if we need to restructure data
+                const needsRestructure = await checkIfNeedsRestructure();
                 
-                // If no students found, create demo data
-                if (students.length === 0) {
-                    updateLoadingStatus('No data found. Creating demo data...');
+                if (needsRestructure) {
+                    updateLoadingStatus('Old structure detected. Cleaning up...');
+                    await deleteAllOldData();
+                    updateLoadingStatus('Creating new professional structure...');
                     await createDemoDataInFirestore();
-                    await loadAllStudents();
+                } else {
+                    updateLoadingStatus('Loading data from Firebase...');
                 }
                 
+                // Load all students
+                await loadAllStudents();
+                
                 updateLoadingStatus('Complete!');
-                setTimeout(() => showHome(), 500);
+                showHome();
             } catch (error) {
                 console.error('Firebase Error:', error);
                 updateLoadingStatus('Error: ' + error.message);
-                
-                // If Firebase fails, use local demo data
-                alert('Firebase connection issue. Loading with demo data...');
-                students = generateDemoStudents();
-                showHome();
+                alert('Firebase connection failed. Please check console for details.');
             }
         }
 
