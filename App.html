@@ -412,27 +412,27 @@
             try {
                 updateLoadingStatus('Checking Firebase connection...');
                 
-                // Check if we need to restructure data
-                const needsRestructure = await checkIfNeedsRestructure();
-                
-                if (needsRestructure) {
-                    updateLoadingStatus('Old structure detected. Cleaning up...');
-                    await deleteAllOldData();
-                    updateLoadingStatus('Creating new professional structure...');
-                    await createDemoDataInFirestore();
-                } else {
-                    updateLoadingStatus('Loading data from Firebase...');
-                }
-                
-                // Load all students
+                // Try to load existing data first
+                updateLoadingStatus('Loading students...');
                 await loadAllStudents();
                 
+                // If no students found, create demo data
+                if (students.length === 0) {
+                    updateLoadingStatus('No data found. Creating demo data...');
+                    await createDemoDataInFirestore();
+                    await loadAllStudents();
+                }
+                
                 updateLoadingStatus('Complete!');
-                showHome();
+                setTimeout(() => showHome(), 500);
             } catch (error) {
                 console.error('Firebase Error:', error);
                 updateLoadingStatus('Error: ' + error.message);
-                alert('Firebase connection failed. Please check console for details.');
+                
+                // If Firebase fails, use local demo data
+                alert('Firebase connection issue. Loading with demo data...');
+                students = generateDemoStudents();
+                showHome();
             }
         }
 
