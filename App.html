@@ -729,6 +729,17 @@
             </div>
 
             <div id="subjectSelection" class="hidden mb-6">
+                <!-- Department Selection for Class 9 & 10 -->
+                <div id="departmentSelection" class="hidden mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">বিভাগ নির্বাচন করুন:</label>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="selectDepartment('Civil')" class="dept-btn class-btn" data-dept="Civil">সিভিল</button>
+                        <button onclick="selectDepartment('Computer')" class="dept-btn class-btn" data-dept="Computer">কম্পিউটার</button>
+                        <button onclick="selectDepartment('Electrical')" class="dept-btn class-btn" data-dept="Electrical">ইলেকট্রিক্যাল</button>
+                        <button onclick="selectDepartment('Mechanical')" class="dept-btn class-btn" data-dept="Mechanical">মেকানিক্যাল</button>
+                    </div>
+                </div>
+                
                 <label class="block text-gray-700 font-semibold mb-2">বিষয় নির্বাচন করুন:</label>
                 <div id="subjectButtons" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
             </div>
@@ -2024,9 +2035,12 @@
         }
 
         // Select Class for Mark Entry
+        let selectedDepartment = '';
+        
         function selectClass(cls) {
             selectedClass = cls;
             selectedSubject = '';
+            selectedDepartment = '';
             
             document.querySelectorAll('[data-class]').forEach(btn => {
                 if (btn.getAttribute('data-class') === cls) {
@@ -2036,6 +2050,34 @@
                 }
             });
 
+            // Show department selection for Class 9 & 10
+            const deptSection = document.getElementById('departmentSelection');
+            if (cls === '9' || cls === '10') {
+                deptSection.classList.remove('hidden');
+                // Reset department buttons
+                document.querySelectorAll('.dept-btn').forEach(btn => {
+                    btn.className = 'dept-btn class-btn';
+                });
+            } else {
+                deptSection.classList.add('hidden');
+                renderSubjects();
+            }
+            
+            document.getElementById('markEntryTable').classList.add('hidden');
+        }
+        
+        // Select Department for Class 9 & 10
+        function selectDepartment(dept) {
+            selectedDepartment = dept;
+            
+            document.querySelectorAll('[data-dept]').forEach(btn => {
+                if (btn.getAttribute('data-dept') === dept) {
+                    btn.className = 'dept-btn class-btn class-btn-active';
+                } else {
+                    btn.className = 'dept-btn class-btn';
+                }
+            });
+            
             renderSubjects();
         }
 
@@ -2048,13 +2090,19 @@
             let subjectsList = [];
             
             if (selectedClass === '9' || selectedClass === '10') {
-                departments.forEach(dept => {
-                    const deptSubjects = subjects[`${selectedClass}-${dept}`] || [];
-                    deptSubjects.forEach(subject => {
-                        subjectsList.push({ key: `${dept}-${subject.name}`, label: `${subject.name} (${dept})`, subject: subject });
-                    });
+                // For Class 9 & 10, need department selection
+                if (!selectedDepartment) {
+                    container.innerHTML = '<p class="text-gray-600">প্রথমে বিভাগ নির্বাচন করুন</p>';
+                    return;
+                }
+                
+                const subjectKey = `${selectedClass}-${selectedDepartment}`;
+                const classSubjects = subjects[subjectKey] || [];
+                classSubjects.forEach(subject => {
+                    subjectsList.push({ key: subject.name, label: subject.name, subject: subject });
                 });
             } else {
+                // For Class 6, 7, 8
                 const classSubjects = subjects[selectedClass] || [];
                 classSubjects.forEach(subject => {
                     subjectsList.push({ key: subject.name, label: subject.name, subject: subject });
@@ -2096,9 +2144,11 @@
             
             let filteredStudents = students.filter(s => s.class === selectedClass);
             
-            if (selectedSubject.includes('-')) {
-                const [dept] = selectedSubject.split('-');
-                filteredStudents = filteredStudents.filter(s => s.department === dept);
+            // Filter by department for Class 9 & 10
+            if (selectedClass === '9' || selectedClass === '10') {
+                if (selectedDepartment) {
+                    filteredStudents = filteredStudents.filter(s => s.department === selectedDepartment);
+                }
             }
 
             filteredStudents.sort((a, b) => {
@@ -2106,12 +2156,12 @@
                 return a.roll - b.roll;
             });
 
-            const actualSubject = selectedSubject.includes('-') ? selectedSubject.split('-').slice(1).join('-') : selectedSubject;
+            const actualSubject = selectedSubject;
             
             let tableHTML = `
                 <h3 class="text-xl font-bold text-gray-800 mb-4">
                     📊 নম্বর প্রবেশ করুন: ${actualSubject}
-                    ${selectedSubject.includes('-') ? ` (${selectedSubject.split('-')[0]})` : ''}
+                    ${selectedDepartment ? ` (${selectedDepartment})` : ''}
                 </h3>
                 <div class="overflow-x-auto bg-white p-4 rounded-lg shadow">
                     <table class="w-full border-collapse text-xs">
@@ -2147,6 +2197,10 @@
                              (parseInt(studentMarks.mcq) || 0) + 
                              (parseInt(studentMarks.practical) || 0) +
                              (parseInt(studentMarks.cont) || 0);
+                
+                const collectionPath = student.class >= '9' 
+                    ? `students/class_${student.class}/${student.department.toLowerCase()}`
+                    : `students/class_${student.class}/branch_${student.branch}`;
                 
                 tableHTML += `
                     <tr class="hover:bg-gray-50">
@@ -2186,12 +2240,12 @@
                         <td class="border border-gray-800 p-1">
                             ${currentSubjectData.written > 0 ? `<input type="number" min="0" max="${currentSubjectData.written}" value="${studentMarks.written || 0}" 
                                 onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'written', this.value, '${student.class}', '${student.branch}', '${student.department}')"
-                                class="w-14 border rounded px-1 py-1 text-center text-xs font-semibold">` : ''}
+                                class="w-14 border rounded px-1 py-1 text-center text-xs font-semibold">` : '---'}
                         </td>
                         <td class="border border-gray-800 p-1">
                             ${currentSubjectData.mcq > 0 ? `<input type="number" min="0" max="${currentSubjectData.mcq}" value="${studentMarks.mcq || 0}" 
                                 onchange="updateDetailedMark('${student.firestoreId}', '${actualSubject}', 'mcq', this.value, '${student.class}', '${student.branch}', '${student.department}')"
-                                class="w-14 border rounded px-1 py-1 text-center text-xs font-semibold">` : ''}
+                                class="w-14 border rounded px-1 py-1 text-center text-xs font-semibold">` : '---'}
                         </td>
                         <td class="border border-gray-800 p-1">
                             ${currentSubjectData.practical > 0 ? `<input type="number" min="0" max="${currentSubjectData.practical}" value="${studentMarks.practical || 0}" 
