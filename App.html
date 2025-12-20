@@ -1428,6 +1428,7 @@
             width: 100%;
             height: 100%;
             position: relative;
+            padding-bottom: 50px;
         }
         
         /* Watermark */
@@ -1571,10 +1572,12 @@
         .signatures {
             display: flex;
             justify-content: space-between;
-            position: absolute;
-            bottom: 5px;
-            left: 0;
-            right: 0;
+            position: fixed;
+            bottom: 18px;
+            left: 10mm;
+            right: 10mm;
+            width: calc(210mm - 20mm);
+            z-index: 100;
         }
         .signature-box {
             text-align: center;
